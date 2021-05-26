@@ -61,6 +61,7 @@ const getContestRankings = async function(contestSlug) {
 }
 
 
+
 const fetchContest = async () => {
 
     try {
@@ -97,11 +98,17 @@ const fetchContest = async () => {
             }
             let newContest = new Contest({
                 _id: contest.titleSlug,
-                startTime: contest.startTime,
+                startTime: contest.startTime*1000,
                 endTime: startTime + contest.duration*1000,
                 lastUpdated: Date.now(),
             })
-            await newContest.save()
+            let oldContest = await Contest.findById(contest.titleSlug)
+            if(oldContest==null){
+                await newContest.save()
+            }
+            else{
+                Contest.findByIdAndUpdate(contest.titleSlug,newContest)
+            }
         }
         return res.data.allContests
     }
@@ -112,9 +119,6 @@ const fetchContest = async () => {
 
 
 }
-
-
-
 
 
 
