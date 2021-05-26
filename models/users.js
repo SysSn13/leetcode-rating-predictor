@@ -13,7 +13,8 @@ const userSchema = new mongoose.Schema({
         default: 1500
     },
     globalRanking:{
-        type: Number
+        type: Number,
+        default:0
     },
     lastUpdated:{
         type: Date,

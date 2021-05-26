@@ -13,7 +13,19 @@ const ContestRankingsSchema = new Schema({
         user_slug: String,
         country_code: String,
         country_name: String,
+        data_region: {
+            type: String,
+            default: "US"
+        },
         rank: Number,
+        current_rating:{
+            type: Number,
+            default:-1
+        },
+        predicted_rating:{
+            type: Number,
+            default:-1
+        }
     }]
 })
 
