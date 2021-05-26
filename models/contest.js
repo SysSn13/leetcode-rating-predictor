@@ -3,10 +3,11 @@ const Schema = mongoose.Schema
 
 const ContestRankingsSchema = new Schema({
     _id: String,
+    startTime: Date,
+    endTime: Date,
     contest_id: Number,
     lastUpdated:{
         type: Date,
-        default: Date.now()
     },
     rankings : [{
         _id: String,

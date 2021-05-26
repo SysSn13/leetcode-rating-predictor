@@ -1,0 +1,75 @@
+
+<link rel="stylesheet" href="/stylesheets/tablestyle.css">
+
+<section class="intro" >
+    <h1 class="mb-5 mt-5" style="text-align: center; ">Leetcode Contests</h1>
+    <div class="bg-image h-100" >
+      <div class="mask d-flex align-items-center h-100">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-body p-0">
+                  <div class="table-responsive table-scroll" data-mdb-perfect-scrollbar="true" style="position: relative; height: 700px">
+                    <table id="data" class="table table-striped mb-0">
+                      <thead style="background-color: #002d72;">
+                        <tr>
+                          <th scope="col">Contest Name</th>
+                          <th scope="col">Type</th>
+                          <th scope="col">Start Time</th>
+                          <th scope="col">Duration</th>
+                          
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% for( let contest of contests ) { %>
+                            <tr>
+                                <td><%= contest._id %> </td>
+                                <% if (contest.startTime>Date.now()) { %>
+                                 <td>Upcoming</td>
+                                <% } else { %>
+                                 <td>Virtual</td>
+                                 <% } %>
+                                <td><%= contest.startTime %></td>
+                                <td>1.5 Hours </td>
+                                
+                              </tr>
+                        <% } %>
+                        
+                        
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+      $(document).ready(function(){
+        $('#data').after('<div id="nav" class="pagination"></div>');
+        var rowsShown = 50;
+        var rowsTotal = $('#data tbody tr').length;
+        var numPages = rowsTotal/rowsShown;
+        for(i = 0;i < numPages;i++) {
+            var pageNum = i + 1;
+            $('#nav').append('<a href="#" rel="'+i+'">'+pageNum+'</a> ');
+        }
+        $('#data tbody tr').hide();
+        $('#data tbody tr').slice(0, rowsShown).show();
+        $('#nav a:first').addClass('active');
+        $('#nav a').bind('click', function(){
+
+            $('#nav a').removeClass('active');
+            $(this).addClass('active');
+            var currPage = $(this).attr('rel');
+            var startItem = currPage * rowsShown;
+            var endItem = startItem + rowsShown;
+            $('#data tbody tr').css('opacity','0.0').hide().slice(startItem, endItem).
+            css('display','table-row').animate({opacity:1}, 300);
+        });
+    });
+  </script>

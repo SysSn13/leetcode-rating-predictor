@@ -1,0 +1,46 @@
+html,
+    body,
+    .intro {
+      height: 100%;
+    }
+    
+    table td,
+    table th {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    
+    thead th {
+      color: #fff;
+    }
+    
+    .card {
+      border-radius: .5rem;
+    }
+    
+    .table-scroll {
+      border-radius: .5rem;
+    }
+    
+    .table-scroll table thead th {
+      font-size: 1.25rem;
+    }
+   
+    .pagination {
+    display: inline-block;
+    }
+
+    .pagination a {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+    }
+
+    .pagination a.active {
+    background-color: #5bc0de	;
+    color: white;
+    }
+
+    .pagination a:hover:not(.active) {background-color: #ddd;}

@@ -15,7 +15,8 @@
     "express": "^4.17.1",
     "express-ejs-layouts": "^2.5.0",
     "mongoose": "^5.12.10",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "node-schedule": "^2.0.0"
   },
   "_id": "leetcode-rating-predictor@1.0.0",
   "devDependencies": {
