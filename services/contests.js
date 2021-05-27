@@ -14,6 +14,7 @@ const fetchContestRankings = async function(contestSlug) {
             let response = await fetch(`https://leetcode.com/contest/api/ranking/${contestSlug}/?pagination=1&region=global`);
             response = await response.json()
             let contest_id = response.total_rank[0].contest_id
+            let num_User = response.user_num
             // TODO: remove hard coded lines
             let pages = 10//Math.floor(response.user_num/25)
             for(let i=1;i<=pages;i++){
@@ -31,7 +32,8 @@ const fetchContestRankings = async function(contestSlug) {
                 _id: contestSlug,
                 contest_id: contest_id,
                 lastUpdated: Date.now(),
-                rankings: rankings
+                rankings: rankings,
+                num_user: num_User
             })
             if(contest===null ){
                 await newContest.save()
@@ -46,6 +48,7 @@ const fetchContestRankings = async function(contestSlug) {
                     rankings: rankings,
                     startTime: contest.startTime,
                     endTime: contest.endTime,
+                    num_user: num_User
                 })
                 await Contest.findByIdAndUpdate(contestSlug, updatedContest)
                 console.log(`Updated Rankings in  contest ${contestSlug}`)

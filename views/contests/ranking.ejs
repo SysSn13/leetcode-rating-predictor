@@ -1,0 +1,78 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-143874982-1"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+<script data-ad-client="ca-pub-5213877146531950" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<div class="container">
+    <h1 class="mb-5 mt-3" style="text-align: center;">Ranking For <%= contests[0]._id %> </h1>
+    <nav aria-label="...">
+        <ul class="pagination">
+            <% if (page>1) { %>
+                
+                <li class="page-item"><a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/1">1</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 1 %>" tabindex="-1">Previous</a>
+                </li>
+            <% } %>
+          
+          <li class="page-item active">
+            <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page%>"><%= page %>  <span class="sr-only">(current)</span></a>
+          </li>
+          <% if (page<totalPages) { %>
+            <li class="page-item">
+                <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= parseInt(page) + 1 %>" tabindex="-1">Next</a>
+            </li>
+              <li class="page-item"><a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= totalPages %> "><%= totalPages %> </a></li>
+            <% } %>
+          
+        </ul>
+      </nav>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped table-fixed">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Country Name</th>
+            </tr>
+            </thead>
+            <tbody>
+                <% if (contests[0].rankings) { %>
+                    <% for( let i = 0; i < contests[0].rankings.length; i++ ) { %>
+                        <tr>
+                            <td><%= i+1 %> </td>
+                            <td><%= contests[0].rankings[i].rank %> </td>
+                            <td><a href="https://leetcode.com/<%=contests[0].rankings[i]._id%>/"><%= contests[0].rankings[i]._id %> </a></td>
+                            <td><%= contests[0].rankings[i].country_name %> </td>
+                        </tr>
+                    <% } %>
+                <% } %>
+               
+            </tbody>
+        </table>
+        <nav aria-label="...">
+            <ul class="pagination">
+                <% if (page>1) { %>
+                    
+                    <li class="page-item"><a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/1">1</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 1 %>" tabindex="-1">Previous</a>
+                    </li>
+                <% } %>
+              
+              <li class="page-item active">
+                <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page%>"><%= page %>  <span class="sr-only">(current)</span></a>
+              </li>
+              <% if (page<totalPages) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= parseInt(page) + 1 %>" tabindex="-1">Next</a>
+                </li>
+                  <li class="page-item"><a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= totalPages %> "><%= totalPages %> </a></li>
+                <% } %>
+              
+            </ul>
+          </nav>
+    </div>
+</div>
