@@ -9,25 +9,68 @@
     <nav aria-label="...">
         <ul class="pagination">
             <% if (page>1) { %>
-                
-                <li class="page-item"><a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/1">1</a></li>
                 <li class="page-item">
-                    <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 1 %>" tabindex="-1">Previous</a>
+                    <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 1 %>" tabindex="-1"><<</a>
                 </li>
+                <li class="page-item"><a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/1">1</a></li>
+                
             <% } %>
-          
+            <% if (page===3) { %>
+                
+                <li class="page-item">
+                    <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 1 %>" tabindex="-1"><%= page - 1 %></a>
+                </li>
+                
+                
+            <% } %>
+            <% if (page>3) { %>
+                <li class="page-item">
+                    <a class="page-link"style="pointer-events: none;" tabindex="-1">..</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 2 %>" tabindex="-1"><%= page - 2 %></a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 1 %>" tabindex="-1"><%= page - 1 %></a>
+                </li>
+                
+                
+            <% } %>
           <li class="page-item active">
             <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page%>"><%= page %>  <span class="sr-only">(current)</span></a>
           </li>
-          <% if (page<totalPages) { %>
+          <% if (page===totalPages-2) { %>
             <li class="page-item">
-                <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= parseInt(page) + 1 %>" tabindex="-1">Next</a>
+              <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= parseInt(page) + 1 %>" tabindex="-1"><%= parseInt(page) + 1 %></a>
+          </li>
+          <% } %>
+          <% if (page<totalPages-2) { %>
+            <li class="page-item">
+                <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= parseInt(page) + 1 %>" tabindex="-1"><%= parseInt(page) + 1 %></a>
             </li>
+            <li class="page-item">
+              <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= parseInt(page) + 2 %>" tabindex="-1"><%= parseInt(page) + 2 %></a>
+          </li>
+          <li class="page-item">
+            <a class="page-link"style="pointer-events: none;" tabindex="-1">..</a>
+        </li>
+          <% } %>
+          <% if (page<totalPages) { %>
+            
               <li class="page-item"><a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= totalPages %> "><%= totalPages %> </a></li>
+              <li class="page-item">
+                <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page + 1 %>" tabindex="-1">>></a>
+            </li>
             <% } %>
           
         </ul>
       </nav>
+      <form action="/contests/<%= contests[0]._id %>/ranking/search" method='POST'>
+        <div class="mb-3">
+            <input type="text" class="form-control" id="user" name="user"  placeholder="Search For a Contestant">
+            <button type="submit" class="btn btn-info mt-3 mb-3">Search</button>
+        </div>
+      </form>
     <div class="table-responsive">
         <table class="table table-hover table-striped table-fixed">
             <thead>
@@ -35,6 +78,8 @@
                 <th>#</th>
                 <th>Rank</th>
                 <th>Name</th>
+                <th>Current Rating</th>
+                <th>Predicted Rating</th>
                 <th>Country Name</th>
             </tr>
             </thead>
@@ -45,6 +90,17 @@
                             <td><%= i+1 %> </td>
                             <td><%= contests[0].rankings[i].rank %> </td>
                             <td><a href="https://leetcode.com/<%=contests[0].rankings[i]._id%>/"><%= contests[0].rankings[i]._id %> </a></td>
+                            <% if ( contests[0].rankings[i].current_rating != -1) { %>
+                                <td><%= contests[0].rankings[i].current_rating %> </td>
+                                <% } else { %>
+                                 <td>?</td>
+                            <% } %>
+                            <% if ( contests[0].rankings[i].predicted_rating != -1) { %>
+                                <td><%= contests[0].rankings[i].predicted_rating %> </td>
+                                <% } else { %>
+                                 <td>?</td>
+                            <% } %>
+                            
                             <td><%= contests[0].rankings[i].country_name %> </td>
                         </tr>
                     <% } %>
@@ -55,24 +111,62 @@
         <nav aria-label="...">
             <ul class="pagination">
                 <% if (page>1) { %>
-                    
-                    <li class="page-item"><a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/1">1</a></li>
                     <li class="page-item">
-                        <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 1 %>" tabindex="-1">Previous</a>
+                        <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 1 %>" tabindex="-1"><<</a>
                     </li>
+                    <li class="page-item"><a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/1">1</a></li>
+                    
                 <% } %>
-              
+                <% if (page===3) { %>
+                    
+                    <li class="page-item">
+                        <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 1 %>" tabindex="-1"><%= page - 1 %></a>
+                    </li>
+                    
+                    
+                <% } %>
+                <% if (page>3) { %>
+                    <li class="page-item">
+                        <a class="page-link"style="pointer-events: none;" tabindex="-1">..</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 2 %>" tabindex="-1"><%= page - 2 %></a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page - 1 %>" tabindex="-1"><%= page - 1 %></a>
+                    </li>
+                    
+                    
+                <% } %>
               <li class="page-item active">
                 <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page%>"><%= page %>  <span class="sr-only">(current)</span></a>
               </li>
-              <% if (page<totalPages) { %>
+              <% if (page===totalPages-2) { %>
                 <li class="page-item">
-                    <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= parseInt(page) + 1 %>" tabindex="-1">Next</a>
+                  <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= parseInt(page) + 1 %>" tabindex="-1"><%= parseInt(page) + 1 %></a>
+              </li>
+              <% } %>
+              <% if (page<totalPages-2) { %>
+                <li class="page-item">
+                    <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= parseInt(page) + 1 %>" tabindex="-1"><%= parseInt(page) + 1 %></a>
                 </li>
+                <li class="page-item">
+                  <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= parseInt(page) + 2 %>" tabindex="-1"><%= parseInt(page) + 2 %></a>
+              </li>
+              <li class="page-item">
+                <a class="page-link"style="pointer-events: none;" tabindex="-1">..</a>
+            </li>
+              <% } %>
+              <% if (page<totalPages) { %>
+                
                   <li class="page-item"><a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= totalPages %> "><%= totalPages %> </a></li>
+                  <li class="page-item">
+                    <a class="page-link" href="/contests/<%= contests[0]._id %>/ranking/<%= page + 1 %>" tabindex="-1">>></a>
+                </li>
                 <% } %>
               
             </ul>
           </nav>
+        
     </div>
 </div>

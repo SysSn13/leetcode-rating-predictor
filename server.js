@@ -4,8 +4,8 @@ if(process.env.NODE_ENV !== 'production') {
 
 const express = require('express')
 const app = express()
+app.use(express.urlencoded({extended: true}))
 const expressLayouts = require('express-ejs-layouts')
-
 const indexRouter = require('./routes/index')
 app.set('view engine','ejs')
 app.set('views',__dirname +'/views')

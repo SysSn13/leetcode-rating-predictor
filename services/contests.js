@@ -90,21 +90,23 @@ const fetchContest = async () => {
         });
         res = await res.json()
         //console.log(res.data.allContests[0])
-        let contestSlug = res.data.allContests[0].titleSlug
-        let startTime = res.data.allContests[0].startTime
-        let endTime = startTime + res.data.allContests[0].duration
+        //let contestSlug = res.data.allContests[0].titleSlug
+        //let startTime = res.data.allContests[0].startTime*1000
+        //let endTime = startTime + res.data.allContests[0].duration*1000
         for(let i=0;i<res.data.allContests.length;i++)
         {
+            //console.log(i)
             let contest = res.data.allContests[i];
             let isfound = await Contest.findById(contest.titleSlug)
-            if(isfound){
-                break;
-            }
+             if(isfound){
+                 break;
+             }
             let newContest = new Contest({
                 _id: contest.titleSlug,
                 startTime: contest.startTime*1000,
-                endTime: startTime + contest.duration*1000,
+                endTime: contest.startTime*1000 + contest.duration*1000,
                 lastUpdated: Date.now(),
+                num_user : contest.num_user
             })
             let oldContest = await Contest.findById(contest.titleSlug)
             if(oldContest==null){

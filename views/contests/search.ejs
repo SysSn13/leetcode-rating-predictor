@@ -1,0 +1,55 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-143874982-1"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+<script data-ad-client="ca-pub-5213877146531950" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<div class="container">
+    <h1 class="mb-5 mt-3" style="text-align: center;">Ranking For <%= contestSlug %> </h1>
+    
+      <form action="/contests/<%= contestSlug %>/ranking/search" method='POST'>
+        <div class="mb-3">
+            <input type="text" class="form-control" id="user" name="user"  placeholder="Search For a Contestant">
+            <button type="submit" class="btn btn-info mt-3 mb-3">Search</button>
+        </div>
+      </form>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped table-fixed">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Current Rating</th>
+                <th>Predicted Rating</th>
+                <th>Country Name</th>
+            </tr>
+            </thead>
+            <tbody>
+                <% if (searchUsers) { %>
+                    <% for( let i = 0; i < searchUsers.length; i++ ) { %>
+                        <tr>
+                            <td><%= i+1 %> </td>
+                            <td><%= searchUsers[i].rank %> </td>
+                            <td><a href="https://leetcode.com/<%=searchUsers[i]._id%>/"><%= searchUsers[i]._id %> </a></td>
+                            <% if ( searchUsers[i].current_rating != -1) { %>
+                                <td><%= searchUsers[i].current_rating %> </td>
+                                <% } else { %>
+                                 <td>?</td>
+                            <% } %>
+                            <% if ( searchUsers[i].predicted_rating != -1) { %>
+                                <td><%= searchUsers[i].predicted_rating %> </td>
+                                <% } else { %>
+                                 <td>?</td>
+                            <% } %>
+                            <td><%= searchUsers[i].country_name %> </td>
+                        </tr>
+                    <% } %>
+                <% } %>
+               
+            </tbody>
+        </table>
+        <a href="/contests/weekly-contest-242/ranking/1" class="btn btn-info btn-md" role="button">All Rankings</a>
+
+    </div>
+</div>
