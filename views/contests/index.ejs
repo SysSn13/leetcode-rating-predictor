@@ -24,14 +24,14 @@
                       <tbody>
                         <% for( let contest of contests ) { %>
                             <tr>
-                                <td><%= contest._id %> </td>
+                                <td><a href="/contests/<%= contest._id %>/ranking/1"><%= contest._id %></a> </td>
                                 <% if (contest.startTime>Date.now()) { %>
                                  <td>Upcoming</td>
                                 <% } else { %>
                                  <td>Virtual</td>
                                  <% } %>
                                 <td><%= contest.startTime %></td>
-                                <td>1.5 Hours </td>
+                                <td><%= (contest.endTime - contest.startTime)/60000 %> minutes</td>
                                 
                               </tr>
                         <% } %>

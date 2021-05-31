@@ -14,6 +14,7 @@ const fetchContestRankings = async function(contestSlug) {
             let response = await fetch(`https://leetcode.com/contest/api/ranking/${contestSlug}/?pagination=1&region=global`);
             response = await response.json()
             let contest_id = response.total_rank[0].contest_id
+            let num_User = response.user_num
             // TODO: remove hard coded lines
             let pages = 10//Math.floor(response.user_num/25)
             for(let i=1;i<=pages;i++){
@@ -31,7 +32,8 @@ const fetchContestRankings = async function(contestSlug) {
                 _id: contestSlug,
                 contest_id: contest_id,
                 lastUpdated: Date.now(),
-                rankings: rankings
+                rankings: rankings,
+                num_user: num_User
             })
             if(contest===null ){
                 await newContest.save()
@@ -46,6 +48,7 @@ const fetchContestRankings = async function(contestSlug) {
                     rankings: rankings,
                     startTime: contest.startTime,
                     endTime: contest.endTime,
+                    num_user: num_User
                 })
                 await Contest.findByIdAndUpdate(contestSlug, updatedContest)
                 console.log(`Updated Rankings in  contest ${contestSlug}`)
@@ -87,21 +90,23 @@ const fetchContest = async () => {
         });
         res = await res.json()
         //console.log(res.data.allContests[0])
-        let contestSlug = res.data.allContests[0].titleSlug
-        let startTime = res.data.allContests[0].startTime
-        let endTime = startTime + res.data.allContests[0].duration
+        //let contestSlug = res.data.allContests[0].titleSlug
+        //let startTime = res.data.allContests[0].startTime*1000
+        //let endTime = startTime + res.data.allContests[0].duration*1000
         for(let i=0;i<res.data.allContests.length;i++)
         {
+            //console.log(i)
             let contest = res.data.allContests[i];
             let isfound = await Contest.findById(contest.titleSlug)
-            if(isfound){
-                break;
-            }
+             if(isfound){
+                 break;
+             }
             let newContest = new Contest({
                 _id: contest.titleSlug,
                 startTime: contest.startTime*1000,
-                endTime: startTime + contest.duration*1000,
+                endTime: contest.startTime*1000 + contest.duration*1000,
                 lastUpdated: Date.now(),
+                num_user : contest.num_user
             })
             let oldContest = await Contest.findById(contest.titleSlug)
             if(oldContest==null){

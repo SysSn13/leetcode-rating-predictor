@@ -6,6 +6,7 @@ const ContestRankingsSchema = new Schema({
     startTime: Date,
     endTime: Date,
     contest_id: Number,
+    num_user: Number,
     lastUpdated:{
         type: Date,
     },
