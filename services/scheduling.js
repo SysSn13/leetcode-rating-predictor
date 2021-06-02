@@ -17,3 +17,14 @@ const job = schedule.scheduleJob({hour: 00, minute: 00,},async function(){
         }
     }
 });
+
+// const fetchNow = async function(){
+//     let contestList = await fetchContest()
+//     for(let i=0;i<contestList.length;i++){
+//         if(contestList[i].rankings && contestList[i].rankings.length>0)
+//             break;    
+//         await getContestRankings(contestList[i].titleSlug)
+//     }
+
+// }
+// exports.fetchAllContests = fetchNow

@@ -124,7 +124,7 @@ const fetchContest = async () => {
 }
 const getContestRankings = async function(contestSlug){
     let contest = await Contest.findById(contestSlug)
-    if(!contest){
+    if(!contest || !contest.rankings || !contest.rankings.length){
         contest = await fetchContestRankings(contestSlug)
     }
     return contest

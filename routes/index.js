@@ -9,42 +9,45 @@ const router = express.Router()
 
 router.get('/',async (req,res) => {
     try {
-        let contests = await contest.find({}).sort({'startTime':'desc'})
+        let contests = await contest.find({},{rankings:0}).sort({'startTime':'desc'})
         res.render('contests/index',{contests:contests})
     }
     catch(error) {
-        console.log("error has occurred")
+        console.log("Error while fetching contests list: ",error)
         res.send(error.message)
     }
 })
 
 router.get('/contests/:contestSlug/ranking/:page', async (req,res) => {
     try {
-        let pageCount = 50
+        let pageCount = 25
         let {contestSlug, page} = req.params
-        let intPage = parseInt(page)
-        if(page!=intPage){
-            throw Error('Page number should be an integer')
+        if(page==null){
+            page ="1"
         }
+        if(!isNumeric(page)){
+            throw Error('Invalid page number')
+        }
+        let intPage = parseInt(page)
         if(page%1){
             intPage++;
         }
         page = intPage
         let toSkip = (page - 1)*pageCount
-        let contests = await contest.find({_id:contestSlug}, { 'rankings': { $slice: [toSkip,pageCount] }})
+        let contests = await contest.findOne({_id:contestSlug}, { 'rankings': { $slice: [toSkip,pageCount] }})
         let totalPages = 100
-        if(contests[0]==null){
+        if(contests==null){
             throw Error("Invalid Contest")
         }
-        if(contests[0].num_user){
-            totalPages = parseInt(contests[0].num_user/50)
-            if(contests[0].num_user/50%1){
+        if(contests.num_user){
+            totalPages = parseInt(contests.num_user/50)
+            if(contests.num_user/25%1){
                 totalPages++;
             }
         }
-        
-        //console.log(contests)
-        //res.send(contests[0]['rankings'])
+        if(page>totalPages){
+            throw Error("Page not found")
+        }
         res.render('contests/ranking', {contests,totalPages,page})
     }
     catch(error){
@@ -74,4 +77,7 @@ router.post('/contests/:contestSlug/ranking/search', async (req,res) => {
     }
 })
 
+function isNumeric(value) {
+    return /^\d+$/.test(value);
+}
 module.exports = router

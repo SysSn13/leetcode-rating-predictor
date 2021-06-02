@@ -26,3 +26,5 @@ app.use('/',indexRouter)
 app.listen(process.env.PORT || 3000)
 
 // const predict = require('./services/predict')
+// const schedualing = require('./services/scheduling')
+// schedualing.fetchAllContests()

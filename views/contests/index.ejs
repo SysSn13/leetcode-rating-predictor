@@ -1,75 +1,48 @@
-
 <link rel="stylesheet" href="/stylesheets/tablestyle.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
 
-<section class="intro" >
-    <h1 class="mb-5 mt-5" style="text-align: center; ">Leetcode Contests</h1>
-    <div class="bg-image h-100" >
-      <div class="mask d-flex align-items-center h-100">
-        <div class="container">
-          <div class="row justify-content-center">
-            <div class="col-12">
-              <div class="card">
-                <div class="card-body p-0">
-                  <div class="table-responsive table-scroll" data-mdb-perfect-scrollbar="true" style="position: relative; height: 700px">
-                    <table id="data" class="table table-striped mb-0">
-                      <thead style="background-color: #002d72;">
-                        <tr>
-                          <th scope="col">Contest Name</th>
-                          <th scope="col">Type</th>
-                          <th scope="col">Start Time</th>
-                          <th scope="col">Duration</th>
-                          
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <% for( let contest of contests ) { %>
-                            <tr>
-                                <td><a href="/contests/<%= contest._id %>/ranking/1"><%= contest._id %></a> </td>
-                                <% if (contest.startTime>Date.now()) { %>
-                                 <td>Upcoming</td>
-                                <% } else { %>
-                                 <td>Virtual</td>
-                                 <% } %>
-                                <td><%= contest.startTime %></td>
-                                <td><%= (contest.endTime - contest.startTime)/60000 %> minutes</td>
-                                
-                              </tr>
-                        <% } %>
-                        
-                        
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+<section class="intro">
+  <h1 class="mb-5 mt-5" style="text-align: center; ">Leetcode Contests</h1>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12">
+
+        <div class="table-responsive table-scroll">
+          <table id="contest-table" class="table table-striped hover">
+            <thead>
+              <tr>
+                <th scope="col">Contest Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">Start Time</th>
+                <th scope="col">Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for( let contest of contests ) { %>
+              <tr>
+                <td><a href="/contests/<%= contest._id %>/ranking/1" style="text-decoration:none"><%= contest._id %></a> </td>
+                <% if (contest.startTime>Date.now()) { %>
+                <td>Upcoming</td>
+                <% } else { %>
+                <td>Virtual</td>
+                <% } %>
+                <td><%= contest.startTime %></td>
+                <td><%= (contest.endTime - contest.startTime)/60000 %> minutes</td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-  </section>
-  <script>
-      $(document).ready(function(){
-        $('#data').after('<div id="nav" class="pagination"></div>');
-        var rowsShown = 50;
-        var rowsTotal = $('#data tbody tr').length;
-        var numPages = rowsTotal/rowsShown;
-        for(i = 0;i < numPages;i++) {
-            var pageNum = i + 1;
-            $('#nav').append('<a href="#" rel="'+i+'">'+pageNum+'</a> ');
-        }
-        $('#data tbody tr').hide();
-        $('#data tbody tr').slice(0, rowsShown).show();
-        $('#nav a:first').addClass('active');
-        $('#nav a').bind('click', function(){
+  </div>
+</section>
 
-            $('#nav a').removeClass('active');
-            $(this).addClass('active');
-            var currPage = $(this).attr('rel');
-            var startItem = currPage * rowsShown;
-            var endItem = startItem + rowsShown;
-            $('#data tbody tr').css('opacity','0.0').hide().slice(startItem, endItem).
-            css('display','table-row').animate({opacity:1}, 300);
-        });
-    });
-  </script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#contest-table').DataTable({
+      "ordering": false
+    })
+  });
+</script>
