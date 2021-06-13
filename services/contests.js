@@ -20,7 +20,6 @@ const fetchContestRankings = async function (contestSlug) {
         // TODO: remove hard coded lines
 
         let pages = Math.floor(response.user_num / 25)
-        pages = 2
         for (let i = 1; i <= pages; i++) {
             console.log("fetching page no.: " + i)
             let res = await fetch(`https://leetcode.com/contest/api/ranking/${contestSlug}/?pagination=${i}&region=global`);
