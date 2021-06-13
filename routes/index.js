@@ -60,16 +60,13 @@ router.post('/contests/:contestSlug/ranking/search', async (req,res) => {
         console.log(req.params)
         let {user} = req.body
         let contests = await contest.find({ _id: req.params.contestSlug} )
-        console.log(contests)
-        let searchUsers = []
+        let searchResult = []
         for(let i=0;i<contests[0].rankings.length;i++){
             if(contests[0].rankings[i]._id.includes(user)){
-                searchUsers.push(contests[0].rankings[i])
+                searchResult.push(contests[0].rankings[i])
             }
         }
-        //console.log(searchUsers)
-        //res.send(searchUsers)
-        res.render('contests/search', {searchUsers,contestSlug: req.params.contestSlug})
+        res.render('contests/search', {searchResult,contestSlug: req.params.contestSlug})
     }
     catch(error){
         console.log(error.message)
