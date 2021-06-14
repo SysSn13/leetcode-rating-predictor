@@ -27,9 +27,12 @@ const fetchNow = async function(){
     if(!contestList)
         return
     let promises = contestList.map(async (contest)=>{
+        // console.log(contest)
         let endTime = contest.startTime*1000 + contest.duration*1000
-        if(Date.now()> endTime)
+        if(Date.now()> endTime){
+            // console.log(endTime)
             await getContestRankings(contest.titleSlug)
+        }
     })
 }
 exports.fetchAllContests = fetchNow

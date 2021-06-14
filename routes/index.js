@@ -1,5 +1,5 @@
 const express = require('express')
-const contest = require('../models/contest')
+const Contest = require('../models/contest')
 const { fetchContest, fetchContestRankings } = require('../services/contests')
 const router = express.Router()
 
@@ -9,7 +9,7 @@ const router = express.Router()
 
 router.get('/',async (req,res) => {
     try {
-        let contests = await contest.find({},{rankings:0}).sort({'startTime':'desc'})
+        let contests = await Contest.find({},{rankings:0}).sort({'startTime':'desc'})
         res.render('contests/index',{contests:contests})
     }
     catch(error) {
@@ -34,7 +34,7 @@ router.get('/contests/:contestSlug/ranking/:page', async (req,res) => {
         }
         page = intPage
         let toSkip = (page - 1)*pageCount
-        let contests = await contest.findOne({_id:contestSlug}, { 'rankings': { $slice: [toSkip,pageCount] }})
+        let contests = await Contest.findOne({_id:contestSlug}, { 'rankings': { $slice: [toSkip,pageCount] }})
         let totalPages = 100
         if(contests==null){
             throw Error("Invalid Contest")
@@ -59,7 +59,7 @@ router.post('/contests/:contestSlug/ranking/search', async (req,res) => {
     try {
         console.log(req.params)
         let {user} = req.body
-        let contests = await contest.find({ _id: req.params.contestSlug} )
+        let contests = await Contest.find({ _id: req.params.contestSlug} )
         let searchResult = []
         for(let i=0;i<contests[0].rankings.length;i++){
             if(contests[0].rankings[i]._id.includes(user)){

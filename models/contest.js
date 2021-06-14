@@ -11,13 +11,13 @@ const rankingSchema = new Schema({
         default: "US"
     },
     rank: Number,
-    current_rating:{
+    current_rating: {
         type: Number,
-        default:null
+        default: null
     },
-    delta:{
+    delta: {
         type: Number,
-        default:null
+        default: null
     }
 })
 const ContestRankingsSchema = new Schema({
@@ -26,11 +26,19 @@ const ContestRankingsSchema = new Schema({
     endTime: Date,
     contest_id: Number,
     num_user: Number,
-    lastUpdated:{
+    ratings_fetched: {
+        type: Boolean,
+        default: false,
+    },
+    ratings_predicted: {
+        type: Boolean,
+        default: false,
+    },
+    rankings: [rankingSchema],
+    lastUpdated: {
         type: Date,
     },
-    rankings : [rankingSchema]
 })
 
 
-module.exports = mongoose.model('Contest',ContestRankingsSchema)
+module.exports = mongoose.model('Contest', ContestRankingsSchema)

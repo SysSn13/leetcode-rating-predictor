@@ -30,7 +30,6 @@ app.listen(process.env.PORT || 3000)
 // const predict = require('./services/predict')
 const schedualing = require('./services/scheduling')
 schedualing.fetchAllContests()
-// schedualing.fetchAllContests()
 // const users = require('./services/users')
 const contest = require('./services/contests')
 
