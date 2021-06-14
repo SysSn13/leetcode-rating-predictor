@@ -3,26 +3,48 @@ const fetch = require('node-fetch')
 const Contest = require('../models/contest')
 let halfHour = 1000 * 60 * 30
 
+async function pushRankingsToContest(contest_id, rankings, pagesCnt, islastPage) {
+    try {
+        await Contest.findOneAndUpdate({
+            _id: contest_id
+        }, {
+            $push: {
+                rankings: rankings,
+            },
+            $inc: {
+                pages_fetched: pagesCnt,
+            },
+            $set: {
+                rankings_fetched: islastPage,
+            },
+        });
+
+        return null
+    } catch (err) {
+        console.log(err)
+        return err
+    }
+}
 const fetchContestRankings = async function (contestSlug) {
     try {
-        let contest = await Contest.findById(contestSlug)
+        let contest = await Contest.findById(contestSlug, {
+            rankings: 0
+        })
         if (!contest) {
-            console.error(`Contest ${contestSlug} not found in the db`)
-            return null
+            return Error(`Contest ${contestSlug} not found in the db`)
         }
 
         console.log(`fetching ${contestSlug} ...`)
-        rankings = []
-        let resp = await fetch(`https://leetcode.com/contest/api/ranking/${contestSlug}/?pagination=1&region=global`);
+        let resp = await fetch(`https://leetcode.com/contest/api/ranking/${contestSlug}/?region=global`);
         resp = await resp.json()
-        let contest_id = resp.total_rank[0].contest_id
-        let num_user = resp.user_num
-        let pages = Math.floor(resp.user_num / 25)
-        for (let i = 1; i <= pages; i++) {
+        // let num_user = resp.user_num
+        let pages = Math.floor(resp.user_num / 25),
+            page = contest.pages_fetched + 1
+        for (let i = page; i <= pages; i++) {
             console.log(`Fetching rankings (${contestSlug}): page: ${i}`)
             let res = await fetch(`https://leetcode.com/contest/api/ranking/${contestSlug}/?pagination=${i}&region=global`);
             res = await res.json()
-            for (ranks of res.total_rank) {
+            rankings = res.total_rank.filter(ranks => !(ranks.score == 0 && ranks.finish_time * 1000 == contest.startTime.getTime())).map((ranks) => {
                 let {
                     username,
                     user_slug,
@@ -30,14 +52,7 @@ const fetchContestRankings = async function (contestSlug) {
                     country_name,
                     data_region,
                     rank,
-                    score,
-                    finish_time,
                 } = ranks
-
-                // no submission 
-                if (score === 0 && finish_time * 1000 == contest.startTime.getTime()) {
-                    break // can also break page loop
-                }
                 let ranking = {
                     username,
                     user_slug,
@@ -47,31 +62,21 @@ const fetchContestRankings = async function (contestSlug) {
                     rank
                 }
                 ranking["_id"] = username
-                rankings.push(ranking)
+                return ranking
+            })
+            let err = await pushRankingsToContest(contest._id, rankings, 1, i === pages)
+            if (err) {
+                return err
             }
         }
-
-        let updatedContest = new Contest({
-            contest_id: contest_id,
-            lastUpdated: Date.now(),
-            rankings: rankings,
-            num_user: num_user,
-            ratings_fetched: true
-        })
-
-        contest = await Contest.findByIdAndUpdate(contestSlug, updatedContest, {
-            new: true
-        })
-        console.log(`Updated Rankings in ${contestSlug}`)
-
-        return contest
-    } catch (err) {
-        console.error(err);
+        console.log(`Updated Rankings in ${contestSlug}.`)
         return null
+    } catch (err) {
+        return err
     }
 }
-const fetchContest = async () => {
-
+const fetchContestsMetaData = async () => {
+    console.log("fetching meta data for all contests...")
     try {
         let res = await fetch("https://leetcode.com/graphql", {
             "headers": {
@@ -129,17 +134,20 @@ const fetchContest = async () => {
         return null
     }
 }
-const getContestRankings = async function (contestSlug) {
+const updateContestRankings = async function (contestSlug) {
     let contest = await Contest.findById(contestSlug, {
         rankings: 0
     })
-    if (!contest || !contest.ratings_fetched) {
-        contest = await fetchContestRankings(contestSlug)
+    if (!contest) {
+        return Error(`contest ${contestSlug} not found in the db.`)
+    } else if (!contest.rankings_fetched) {
+        let err = await fetchContestRankings(contestSlug)
+        return err
     }
-    return contest
+    return null
 }
 
 // exports 
-module.exports.fetchContest = fetchContest
-exports.getContestRankings = getContestRankings
+exports.fetchContestsMetaData = fetchContestsMetaData
+exports.updateContestRankings = updateContestRankings
 exports.fetchContestRankings = fetchContestRankings

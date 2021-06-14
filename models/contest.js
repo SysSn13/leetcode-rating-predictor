@@ -26,7 +26,11 @@ const ContestRankingsSchema = new Schema({
     endTime: Date,
     contest_id: Number,
     num_user: Number,
-    ratings_fetched: {
+    pages_fetched: {
+        type: Number,
+        default:0,
+    },
+    rankings_fetched: {
         type: Boolean,
         default: false,
     },
