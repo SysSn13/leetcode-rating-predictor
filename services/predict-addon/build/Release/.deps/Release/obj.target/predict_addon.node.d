@@ -1,0 +1,1 @@
+cmd_Release/obj.target/predict_addon.node := g++ -shared -pthread -rdynamic -m64  -Wl,-soname=predict_addon.node -o Release/obj.target/predict_addon.node -Wl,--start-group Release/obj.target/predict_addon/cpp/main.o -Wl,--end-group 

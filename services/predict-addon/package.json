@@ -1,0 +1,13 @@
+{
+  "name": "predict-addon",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "node ./test/test.js",
+    "build":"node-gyp clean && node-gyp configure build && node-gyp build"
+  },
+  "keywords": [],
+  "author": "Sudesh Chaudhary",
+  "license": "ISC"
+}
