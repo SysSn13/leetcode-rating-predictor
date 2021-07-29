@@ -40,13 +40,13 @@ CFLAGS_CC_Debug := \
 	-std=gnu++1y
 
 INCS_Debug := \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/include/node \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/src \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/deps/openssl/config \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/deps/openssl/openssl/include \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/deps/uv/include \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/deps/zlib \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/deps/v8/include
+	-I/home/sudesh/.cache/node-gyp/14.17.3/include/node \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/src \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/deps/openssl/config \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/deps/openssl/openssl/include \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/deps/uv/include \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/deps/zlib \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/deps/v8/include
 
 DEFS_Release := \
 	'-DNODE_GYP_MODULE_NAME=predict_addon' \
@@ -83,13 +83,13 @@ CFLAGS_CC_Release := \
 	-std=gnu++1y
 
 INCS_Release := \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/include/node \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/src \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/deps/openssl/config \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/deps/openssl/openssl/include \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/deps/uv/include \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/deps/zlib \
-	-I/home/sudesh/.cache/node-gyp/15.0.1/deps/v8/include
+	-I/home/sudesh/.cache/node-gyp/14.17.3/include/node \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/src \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/deps/openssl/config \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/deps/openssl/openssl/include \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/deps/uv/include \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/deps/zlib \
+	-I/home/sudesh/.cache/node-gyp/14.17.3/deps/v8/include
 
 OBJS := \
 	$(obj).target/$(TARGET)/cpp/main.o

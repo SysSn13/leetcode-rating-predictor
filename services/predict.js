@@ -1,91 +1,65 @@
-const contests = require("./contests")
-const Contest = require("../models/contest") 
-const users = require("./users")
+const { updateContestRankings } = require("./contests");
+const {
+    fetchContestParticipantsData,
+    getContestParticipantsData,
+} = require("./users");
+const Contest = require("../models/contest");
+const predictAddon = require("./predict-addon");
+const predict = async (job) => {
+    console.log(`Fetching contest rankings for ${job.data.contestSlug}`);
+    let err = await updateContestRankings(job.data.contestSlug);
+    if (err) {
+        return err;
+    }
+    job.progress(30);
+    console.log(`Fetching participants in db for ${job.data.contestSlug}`);
+    err = await fetchContestParticipantsData(job.data.contestSlug);
+    if (err) {
+        return err;
+    }
+    job.progress(60);
+    console.log(
+        `Collecting participants' predictions data for ${job.data.contestSlug}`
+    );
+    const participantsData = await getContestParticipantsData(
+        job.data.contestSlug,
+        job.data.latest
+    );
 
+    if (participantsData.length === 0) {
+        return new Error("Participants data not found");
+    }
 
-// https://leetcode.com/discuss/general-discussion/468851/New-Contest-Rating-Algorithm-(Coming-Soon)
+    job.progress(70);
+    console.log(`Predicting ratings for ${job.data.contestSlug}`);
+    const predictedRatings = predictAddon.predict(participantsData, 4);
+    job.progress(85);
 
-function meanWinningPercentage(ratingA,ratingB){
-    return 1/(1+Math.pow(10,(ratingB-ratingA)/400))
-}
-function getExpectedRank(rankList,participantsData,userRating){
-    //  sum over all other participants of probabilities to win + 1
-    let seed = 0
-    rankList.map(rank =>{
-        if(participantsData[rank._id].rating!=-1){
-            seed += meanWinningPercentage(participantsData[rank._id].rating,userRating)
-        }
-    })
-    return seed
-}
+    console.log(
+        `Updating db with predicted ratings for ${job.data.contestSlug}`
+    );
 
-function geometricMean(eRank,rank){
-    return Math.sqrt(eRank*rank)
-}
+    let contest = await Contest.findById(job.data.contestSlug);
+    if (!contest) {
+        return new Error("Contest not found in db");
+    }
 
-function getRating(rankList,participantsData,GMean){
-    let l = 1,r = 100000,mid,seed
-    while(r-l>0.1){
-        mid = l + (r-l)/2;
-        seed = 1 + getExpectedRank(rankList,participantsData,mid)
-        if(seed > GMean){
-            // to reduce seed -> increase ERating
-            l = mid
-        } else {
-            // to increase seed -> decrease ERating
-            r  = mid
+    for (
+        let i = 0;
+        i < contest.rankings.length && i < predictedRatings.length;
+        i++
+    ) {
+        if (predictedRatings[i] != -1) {
+            contest.rankings[i].current_rating = participantsData[i].rating;
+            contest.rankings[i].delta =
+                predictedRatings[i] - participantsData[i].rating;
         }
     }
-    return mid
-}
+    contest.lastUpdated = Date.now();
+    contest.ratings_predicted = true;
+    job.progress(90);
+    await contest.save();
+    job.progress(100);
+};
 
-// function to get all contest participants' rating before contest
-async function getParticipantsData(rankList){
-    let participantsData = {}
-
-    let promises = rankList.map( async (participant) =>{
-        try{
-            user = await users.getUser(participant._id,participant.data_region)
-            if(user===null){
-                participantsData[participant._id] = {"rating":-1,"rank":participant.rank}
-            }
-            else{
-                participantsData[participant._id] = {"rating":user.rating,"rank":participant.rank}
-            }
-        } catch(err){
-            console.error(err)
-        }
-    });
-    await Promise.all(promises)
-    return participantsData
-}
-const predict = async (contestSlug)=> {
-    try{
-        contestData = await contests.getContestRankings(contestSlug)
-        if(!contestData)
-            return
-        // console.log(contestData._id)
-        participantsData = await getParticipantsData(contestData.rankings)
-        // console.log(contestData.rankings,participantsData)
-        for(let i=0;i<contestData.rankings.length;i++){
-            const participant = contestData.rankings[i]
-            if(participantsData[participant._id].rating===-1){
-                continue
-            }
-            const currentRating = participantsData[participant._id].rating
-            const expectedRank = 0.5 + getExpectedRank(contestData.rankings,participantsData,currentRating) //seed
-            const GMean = geometricMean(expectedRank,participantsData[participant._id].rank)
-            const expectedRating = getRating(contestData.rankings,participantsData,GMean)
-            // TODO: handle initial value case of function f
-            const delta  = (2/9)*(expectedRating-currentRating)
-            const predictedRating = currentRating+delta
-            contestData.rankings[i].predicted_rating = predictedRating 
-            // console.log(participant._id,currentRating,expectedRank,GMean,expectedRating,delta,predictedRating)
-        }
-        await Contest.findByIdAndUpdate(contestSlug,contestData)
-    } catch(err){
-        console.log(err)
-    }
-}
-
-exports.predict = predict
+exports.predict = predict;

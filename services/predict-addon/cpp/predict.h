@@ -22,8 +22,10 @@ class Predict{
             return;
         auto calculate = [this](vector<Rank> &data,int l,int r){
             for(int i=l;i<r;i++){
-                if(data[i].currentRating==-1)
+                if(data[i].currentRating==-1){
+                    data[i].predictedRating = -1;
                     continue;
+                }
                 const double expectedRank = 0.5 + getExpectedRank(data,data[i].currentRating);
                 const double GMean = geometricMean(expectedRank,i+1);
                 const double expectedRating = getRating(data,GMean);

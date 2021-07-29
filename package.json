@@ -2,20 +2,27 @@
   "name": "leetcode-rating-predictor",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "14.17.3"
+  },
   "main": "server.js",
   "scripts": {
     "start": "node main.js",
-    "dev": "nodemon main.js --max_old_space_size=1024"
+    "dev": "nodemon main.js --max_old_space_size=1024",
+    "buildAddon":"npm run build --prefix ./services/predict-addon/"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Sudesh Chaudhary <sudeshchaudhary1122@gmail.com> (https://github.com/SysSn13)",
+  "license": "MIT",
   "dependencies": {
+    "@bull-board/express": "^3.3.1",
+    "bull": "^3.27.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "express-ejs-layouts": "^2.5.0",
     "mongoose": "^5.12.10",
     "node-fetch": "^2.6.1",
+    "node-gyp": "^8.1.0",
     "node-schedule": "^2.0.0"
   },
   "_id": "leetcode-rating-predictor@1.0.0",

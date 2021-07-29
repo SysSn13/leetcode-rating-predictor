@@ -6,7 +6,7 @@ const addon = require("../build/Release/predict_addon");
 
 let predictedRatings = [];
 console.time("rating predictions (C++)");
-predictedRatings = addon.predict(data, 1);
+predictedRatings = addon.predict(data, 4);
 console.timeEnd("rating predictions (C++)");
 
 // calculates mean square error

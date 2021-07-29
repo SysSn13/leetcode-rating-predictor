@@ -23,10 +23,8 @@ void PredictRatings(const FunctionCallbackInfo<Value> &args){
         }
         THREAD_CNT = max(THREAD_CNT,int(args[1]->NumberValue(context).FromMaybe(1)));
     }
-    auto sol = Predict(rankList,THREAD_CNT);
-    Local<String> result = String::NewFromUtf8(isolate,"Predicted!").ToLocalChecked();
+    Predict(rankList,THREAD_CNT);
     Local<Array> predictedRatings = packRankList(rankList);
-
     args.GetReturnValue().Set(predictedRatings);
 }
 

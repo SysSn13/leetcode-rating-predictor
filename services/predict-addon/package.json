@@ -2,12 +2,12 @@
   "name": "predict-addon",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "addon.js",
   "scripts": {
     "test": "node ./test/test.js",
-    "build":"node-gyp clean && node-gyp configure build && node-gyp build"
+    "build":"node-gyp clean && node-gyp configure && node-gyp build"
   },
   "keywords": [],
   "author": "Sudesh Chaudhary",
-  "license": "ISC"
+  "license": "MIT"
 }

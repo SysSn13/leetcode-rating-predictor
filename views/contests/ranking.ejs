@@ -74,7 +74,7 @@
                 <th>Rank</th>
                 <th>Name</th>
                 <th>Current Rating</th>
-                <th>Predicted Rating</th>
+                <th>Delta</th>
                 <th>Country Name</th>
             </tr>
             </thead>
@@ -85,13 +85,13 @@
                             <td><%= i+1 %> </td>
                             <td><%= contests.rankings[i].rank %> </td>
                             <td><a href="https://leetcode.com/<%=contests.rankings[i]._id%>/"><%= contests.rankings[i]._id %> </a></td>
-                            <% if ( contests.rankings[i].current_rating != -1) { %>
+                            <% if ( contests.rankings[i].current_rating && contests.rankings[i].current_rating != -1) { %>
                                 <td><%= contests.rankings[i].current_rating %> </td>
                                 <% } else { %>
                                  <td>?</td>
                             <% } %>
-                            <% if ( contests.rankings[i].predicted_rating != -1) { %>
-                                <td><%= contests.rankings[i].predicted_rating %> </td>
+                            <% if ( contests.rankings[i].delta) { %>
+                                <td><%= contests.rankings[i].delta %> </td>
                                 <% } else { %>
                                  <td>?</td>
                             <% } %>
