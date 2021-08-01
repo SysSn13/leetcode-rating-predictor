@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const rankingSchema = new Schema({
     _id: String,
@@ -8,28 +8,24 @@ const rankingSchema = new Schema({
     country_name: String,
     data_region: {
         type: String,
-        default: "US"
+        default: "US",
     },
     rank: Number,
     current_rating: {
         type: Number,
-        default: null
+        default: null,
     },
     delta: {
         type: Number,
-        default: null
-    }
-})
+        default: null,
+    },
+});
 const ContestRankingsSchema = new Schema({
     _id: String,
     startTime: Date,
     endTime: Date,
     contest_id: Number,
-    num_user: Number,
-    pages_fetched: {
-        type: Number,
-        default:0,
-    },
+    user_num: Number,
     rankings_fetched: {
         type: Boolean,
         default: false,
@@ -42,7 +38,6 @@ const ContestRankingsSchema = new Schema({
     lastUpdated: {
         type: Date,
     },
-})
+});
 
-
-module.exports = mongoose.model('Contest', ContestRankingsSchema)
+module.exports = mongoose.model("Contest", ContestRankingsSchema);

@@ -1,10 +1,7 @@
 const { User, ContestHistory } = require("../models/users");
 const Contest = require("../models/contest");
 const fetch = require("node-fetch");
-const oneDay = 24 * 60 * 60 * 1000;
-const fs = require("fs");
-const contest = require("../models/contest");
-const { asyncLimit } = require("./helpers");
+
 const BASE_URL = "https://leetcode.com";
 const BASE_CN_URL = "https://leetcode-cn.com";
 
@@ -14,16 +11,11 @@ function getUserId(username, dataRegion = "US") {
 async function getLastContestStartTime(user_id) {
     try {
         let lastStartTime = 0;
-        const user = await User.findOne(
-            {
-                _id: user_id.toLowerCase(),
-            },
-            {
-                contestsHistory: {
-                    $slice: [-1, 1],
-                },
-            }
-        );
+        const user = await User.findOne({
+            _id: user_id,
+        })
+            .where("contestsHistory")
+            .slice([-1, 1]);
         if (user && user.contestsHistory && user.contestsHistory.length > 0) {
             lastStartTime = user.contestsHistory[0].startTime;
         }
@@ -110,45 +102,50 @@ async function fetchUserDataUSRegion(username) {
             rating = ranking.rating;
             globalRanking = ranking.globalRanking;
         }
-        let user = new User({
-            attendedContestsCount: attendedContestsCount,
-            rating: rating,
-            globalRanking: globalRanking,
-            lastUpdated: Date.now(),
-        });
-        await User.findOneAndUpdate(
-            {
+        const exists = await User.exists({ _id: user_id });
+
+        if (!exists) {
+            const user = new User({
                 _id: user_id,
-            },
-            user,
-            {
-                upsert: true,
+                attendedContestsCount: attendedContestsCount,
+                rating: rating,
+                globalRanking: globalRanking,
+                lastUpdated: Date.now(),
+            });
+            await user.save();
+        }
+        let lastStartTime = 0,
+            err;
+        if (exists) {
+            [lastStartTime, err] = await getLastContestStartTime(user_id);
+            if (err) {
+                return err;
             }
-        );
+        }
         // contests history
         history = resp.data.userContestRankingHistory;
-        let [lastStartTime, err] = await getLastContestStartTime(user_id);
-        if (err) {
-            return err;
+        contestsHistory = history
+            .map((ele) => {
+                if (
+                    ele.contest.startTime &&
+                    ele.contest.startTime > lastStartTime
+                ) {
+                    return new ContestHistory({
+                        _id: ele.contest.title
+                            .trim()
+                            .replace(/ /g, "-")
+                            .toLowerCase(),
+                        title: ele.contest.title,
+                        startTime: ele.contest.startTime,
+                        rating: ele.rating,
+                        ranking: ele.ranking,
+                    });
+                }
+            })
+            .filter((item) => item != undefined);
+        if (contestsHistory.length > 0) {
+            return pushContestHistory(user_id, contestsHistory);
         }
-        contestsHistory = history.map((ele) => {
-            if (
-                ele.contest.startTime &&
-                ele.contest.startTime > lastStartTime
-            ) {
-                return new ContestHistory({
-                    _id: ele.contest.title
-                        .trim()
-                        .replace(/ /g, "-")
-                        .toLowerCase(),
-                    title: ele.contest.title,
-                    startTime: ele.contest.startTime,
-                    rating: ele.rating,
-                    ranking: ele.ranking,
-                });
-            }
-        });
-        return pushContestHistory(user_id, contestsHistory);
     } catch (err) {
         return err;
     }
@@ -379,51 +376,21 @@ const fetchContestParticipantsData = async (contestSlug) => {
         if (!contest) {
             return Error(`Contest ${contestSlug} not found`);
         }
-        const limit = 50;
-
+        const limit = 100;
         const total = contest.rankings.length;
-        let ind = Math.min(total, limit);
-        let promises = [];
-        const fetchData = async (i) => {
-            if (i >= total) {
-                return;
+
+        for (let i = 0; i < total; i += limit) {
+            let promises = [];
+            for (let j = 0; j < limit && i + j < total; j++) {
+                promises.push(
+                    fetchUserInfo(
+                        contest.rankings[i + j].user_slug,
+                        contest.rankings[i + j].data_region
+                    )
+                );
             }
-            fetchUserInfo(
-                contest.rankings[i].user_slug,
-                contest.rankings[i].data_region
-            )
-                .then((err) => {
-                    if (err) {
-                        console.error(err);
-                    }
-                })
-                .catch((err) => {
-                    console.error(err);
-                })
-                .finally(() => {
-                    if (ind < total) {
-                        promises.push(
-                            new Promise((resolve) => {
-                                fetchData(ind++).then(() => {
-                                    resolve();
-                                });
-                            })
-                        );
-                    }
-                });
-        };
-
-        for (let i = 0; i < total && i < limit; i++) {
-            promises.push(
-                new Promise((resolve) => {
-                    fetchData(i).then(() => {
-                        resolve();
-                    });
-                })
-            );
+            await Promise.all(promises);
         }
-
-        await Promise.all(promises);
     } catch (err) {
         return err;
     }

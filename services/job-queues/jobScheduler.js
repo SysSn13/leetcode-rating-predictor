@@ -16,7 +16,7 @@ scheduler.process(async (job, done) => {
     };
 
     const isLatest = (endTime) => {
-        return Date.now() - endTime >= 0;
+        return Date.now() - endTime <= 2*24 * 60 * 60 * 1000;
     };
 
     const withinAWeek = (endTime) => {

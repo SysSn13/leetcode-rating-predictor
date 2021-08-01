@@ -7,9 +7,9 @@
   },
   "main": "server.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "node main.js --max_old_space_size=512",
     "dev": "nodemon main.js --max_old_space_size=1024",
-    "buildAddon":"npm run build --prefix ./services/predict-addon/"
+    "buildAddon": "npm run build --prefix ./services/predict-addon/"
   },
   "keywords": [],
   "author": "Sudesh Chaudhary <sudeshchaudhary1122@gmail.com> (https://github.com/SysSn13)",
@@ -22,8 +22,7 @@
     "express-ejs-layouts": "^2.5.0",
     "mongoose": "^5.12.10",
     "node-fetch": "^2.6.1",
-    "node-gyp": "^8.1.0",
-    "node-schedule": "^2.0.0"
+    "node-gyp": "^8.1.0"
   },
   "_id": "leetcode-rating-predictor@1.0.0",
   "devDependencies": {
