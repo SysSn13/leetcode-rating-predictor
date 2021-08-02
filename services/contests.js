@@ -1,7 +1,5 @@
 const fetch = require("node-fetch");
-
 const Contest = require("../models/contest");
-let halfHour = 1000 * 60 * 30;
 
 // async function pushRankingsToContest(
 //     contest_id,

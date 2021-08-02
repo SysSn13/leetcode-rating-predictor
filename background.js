@@ -13,7 +13,6 @@ const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
 
 serverAdapter.setBasePath("/bull-board");
 
-console.log("background is running...");
 const initScheduler = async () => {
     await jobScheduler.add({});
     await jobScheduler.add({}, { repeat: { cron: "0 0 * * *" } });

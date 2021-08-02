@@ -3,10 +3,6 @@ const Contest = require("../models/contest");
 const { fetchContest, fetchContestRankings } = require("../services/contests");
 const router = express.Router();
 
-//fetchContest()
-//fetchContestRankings('weekly-contest-242')
-//fetchContestRankings('weekly-contest-240')
-
 router.get("/", async (req, res) => {
     try {
         let contests = await Contest.find({}, { rankings: 0 }).sort({

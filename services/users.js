@@ -4,10 +4,7 @@ const fetch = require("node-fetch");
 
 const BASE_URL = "https://leetcode.com";
 const BASE_CN_URL = "https://leetcode-cn.com";
-
-function getUserId(username, dataRegion = "US") {
-    return dataRegion + "/" + username.trim().toLowerCase();
-}
+const { getUserId } = require("./helpers");
 async function getLastContestStartTime(user_id) {
     try {
         let lastStartTime = 0;
