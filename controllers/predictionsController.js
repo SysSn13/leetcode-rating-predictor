@@ -1,6 +1,8 @@
 const Contest = require("../models/contest");
 
 exports.get = function (req, res) {
+    res.set("Access-Control-Allow-Origin", "*");
+
     if (!req.query.contestId || !req.query.handles) {
         res.status(400).send("Invalid query params");
         return;
@@ -12,7 +14,7 @@ exports.get = function (req, res) {
             return handle.trim();
         })
         .filter((handle) => handle != "");
-    handles.length = Math.min(handles.length, 25);
+    handles.length = Math.min(handles.length, 50);
 
     Contest.aggregate(
         [
