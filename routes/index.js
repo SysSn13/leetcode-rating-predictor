@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/contests/:contestSlug/ranking/:page", rankingsController.get);
-router.post("/contests/:contestSlug/ranking/search", rankingsController.search);
+router.get("/contest/:contestSlug/ranking/:page", rankingsController.get);
+router.post("/contest/:contestSlug/ranking/search", rankingsController.search);
 
 module.exports = router;

@@ -19,7 +19,7 @@ body {
     text-align: center;
     text-decoration: none;
     letter-spacing: .06em;
-    background-color: #1890ff;
+    background-color: #337ab7;
     padding: 0.5em 5em 0.4em 5em;
     text-shadow: 0 0 0.75em #444;
     box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.5);
@@ -81,5 +81,5 @@ a {
 .btn-primary:active {
     background-color: #337ab7 !important;
     border-color: #337ab7 !important;
-    box-shadow: 0 0 0 0.25rem rgb(102 151 193) !important;
+    box-shadow: 0 0 0 0.25rem #e9edf1 !important;
 }
