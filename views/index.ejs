@@ -1,15 +1,14 @@
 <link rel="stylesheet" href="/stylesheets/tablestyle.css">
-<link rel="stylesheet" href="/stylesheets/main.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
 
 <section class="content">
-  <h3 class="mb-5 mt-5" style="text-align: center; ">Leetcode Rating Predictor</h3>
+  <h2 class="mb-5 mt-5" style="text-align: center; ">Leetcode Rating Predictor</h2>
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-12">
 
-        <div class="table-responsive table-scroll">
-          <table id="contest-table" class="table table-bg table-striped hover">
+        <div class="table-responsive-lg">
+          <table id="contest-table" class="table table-striped hover">
             <thead>
               <tr class="bg-primary">
                 <th scope="col">Contest Name</th>
@@ -45,11 +44,12 @@
   </div>
 </section>
 
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 <script>
-  $(document).ready(function () {
-    $('#contest-table').DataTable({
-      "ordering": false
-    })
-  });
+
+new simpleDatatables.DataTable("#contest-table", {
+	searchable: true,
+	fixedHeight: true,
+  sortable:false,
+});
 </script>

@@ -1,19 +1,32 @@
 const Queue = require("bull");
+const Contest = require("../../models/contest");
 const { predict } = require("../predict");
 const opts = require("../redis");
 const { updateUsers } = require("../users");
 
 opts.lockDuration = 30 * 60 * 1000; // 30 minutes
+opts.maxStalledCount = 0;
 
 const predictQueue = new Queue("Predictions", opts);
 predictQueue.process("predictRatings", async (job, done) => {
-    console.log("Processing job: ", job.id);
-    const err = await predict(job);
-    if (err) {
-        console.error(err);
+    try {
+        console.log(`Processing ${job.name} job: ${job.id}`);
+        const contest = await Contest.findById(job.data.contestSlug, {
+            ratings_predicted: 1,
+        });
+        if (contest && contest.ratings_predicted) {
+            done(null, { message: "skipped (already predicted)" });
+            return;
+        }
+        const err = await predict(job);
+        if (err) {
+            console.error(err);
+            done(err);
+        }
+        done(null, { message: "DONE" });
+    } catch (err) {
         done(err);
     }
-    done();
 });
 
 predictQueue.process("updateUserData", async (job, done) => {

@@ -33,6 +33,7 @@ if (process.env.WEB == true) {
     app.set("view engine", "ejs");
     app.set("views", __dirname + "/views");
     app.set("layout", "layouts/layout");
+    app.set("layout extractScripts", true);
     app.use(expressLayouts);
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(express.static("public"));

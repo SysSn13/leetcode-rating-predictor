@@ -7,8 +7,8 @@
   },
   "main": "server.js",
   "scripts": {
-    "start": "node main.js --max_old_space_size=1024",
-    "dev": "nodemon --max_old_space_size=1024  --trace-warnings main.js",
+    "start": "node main.js --max_old_space_size=1024 --trace-warnings",
+    "dev": "nodemon --max_old_space_size=1024 --trace-warnings main.js",
     "buildAddon": "npm run build --prefix ./services/predict-addon/"
   },
   "keywords": [],

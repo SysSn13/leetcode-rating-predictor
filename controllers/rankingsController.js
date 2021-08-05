@@ -75,9 +75,9 @@ exports.search = async function (req, res) {
             page: 1,
             totalPages: 1,
             searchResult: true,
-            title: `Search | ${_id} | Leetcode Rating Predictor`,
+            title: `Search | ${req.params.contestSlug} | Leetcode Rating Predictor`,
         });
-    } catch (error) {
+    } catch (err) {
         console.error(err);
         res.sendStatus(500);
     }

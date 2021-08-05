@@ -4,48 +4,52 @@
       white-space: nowrap;
       overflow: hidden;
     }
-        
+
     .card {
       border-radius: .5rem;
     }
-    
+
     .table-scroll {
       border-radius: .5rem;
     }
-    
+
     .table-scroll table thead th {
       font-size: 1.25rem;
     }
-    .pagination > li > a
-    {
-        background-color: white;
-        color: #000000;
+
+    .pagination>li>a {
+      background-color: white;
+      color: #000000;
     }
-    
-    .pagination > li > a:focus,
-    .pagination > li > a:hover,
-    .pagination > li > span:focus,
-    .pagination > li > span:hover
-    {
-        color: #5a5a5a;
-        background-color: #eee;
-        border-color: #ddd;
+
+    .pagination>li>a:focus,
+    .pagination>li>a:hover,
+    .pagination>li>span:focus,
+    .pagination>li>span:hover {
+      color: #5a5a5a;
+      background-color: #eee;
+      border-color: #ddd;
     }
-    
-    .pagination > .active > a
-    {
-        color: #000000;
-        background-color: #337ab7 !important;
-        border: solid 1px #337ab7 !important;
+
+    .pagination>.active>a {
+      color: #000000;
+      background-color: #337ab7 !important;
+      border: solid 1px #337ab7 !important;
     }
-    
-    .pagination > .active > a:hover
-    {
-        background-color: #4c85b8 !important;
-        border: solid 1px #4c85b8;
+
+    .pagination>.active>a:hover {
+      background-color: #4c85b8 !important;
+      border: solid 1px #4c85b8;
     }
-    table,tbody, td, tfoot, th, thead, tr{
-      border-style:none !important;
+
+    table,
+    tbody,
+    td,
+    tfoot,
+    th,
+    thead,
+    tr {
+      border-style: none !important;
     }
 
     table {
@@ -54,11 +58,10 @@
     }
 
     .table thead th {
-        border-bottom: 2px solid #6685a5 !important;
+      border-bottom: 2px solid #6685a5 !important;
     }
-    .dataTables_filter{
+
+    .dataTables_filter {
       margin-bottom: 1em !important;
       padding: 1px;
     }
-
-

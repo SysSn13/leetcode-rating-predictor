@@ -29,6 +29,7 @@ scheduler.process("contestScheduler", async (job, done) => {
                     attempts: 5,
                     delay: getRemainingTime(contest.endTime) + 10 * 1000,
                     backoff: 10000,
+                    priority: 1,
                 }
             );
             cnt++;

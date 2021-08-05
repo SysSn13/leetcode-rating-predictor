@@ -1,5 +1,13 @@
-body{
-    color:#333;
+body {
+    margin: 0;
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-variant: tabular-nums;
+    line-height: 1.5;
+    background-color: #fff;
+    -webkit-font-feature-settings: 'tnum';
+    font-feature-settings: 'tnum';
 }
 
 #forkMe {
@@ -11,17 +19,18 @@ body{
     text-align: center;
     text-decoration: none;
     letter-spacing: .06em;
-    background-color: #455a64;
+    background-color: #1890ff;
     padding: 0.5em 5em 0.4em 5em;
     text-shadow: 0 0 0.75em #444;
-    box-shadow: 0 0 0.5em rgba(0,0,0,0.5);
-    transform: rotate(45deg) scale(0.75,1);
+    box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.5);
+    transform: rotate(45deg) scale(0.75, 1);
     font: bold 16px/1.2em Arial, Sans-Serif;
     -webkit-text-shadow: 0 0 0.75em #444;
-    -webkit-box-shadow: 0 0 0.5em rgba(0,0,0,0.5);
-    -webkit-transform: rotate(45deg) scale(0.75,1);
-    z-index:10;
+    -webkit-box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.5);
+    -webkit-transform: rotate(45deg) scale(0.75, 1);
+    z-index: 10;
 }
+
 #forkMe:before {
     content: '';
     top: 0;
@@ -32,9 +41,18 @@ body{
     margin: -0.3em -5em;
     transform: scale(0.7);
     -webkit-transform: scale(0.7);
-    border: 2px rgba(255,255,255,0.7) dashed;
+    border: 2px rgba(255, 255, 255, 0.7) dashed;
 }
-#forkMe:hover {opacity: 0.9;}
+
+@media only screen and (max-width: 600px) {
+    #forkMe {
+        font-size: small;
+    }
+}
+
+#forkMe:hover {
+    opacity: 0.9;
+}
 
 a {
     color: #1890ff;
@@ -47,16 +65,20 @@ a {
     transition: color 0.3s;
     -webkit-text-decoration-skip: objects;
 }
-.btn-primary{
+
+.btn-primary {
     background-color: #337ab7 !important;
     border-color: #337ab7 !important;
-    color:white !important;
+    color: white !important;
 }
-.bg-primary{
+
+.bg-primary {
     background-color: #337ab7 !important;
     color: white !important;
 }
-.btn-primary:focus, .btn-primary:active {
+
+.btn-primary:focus,
+.btn-primary:active {
     background-color: #337ab7 !important;
     border-color: #337ab7 !important;
     box-shadow: 0 0 0 0.25rem rgb(102 151 193) !important;

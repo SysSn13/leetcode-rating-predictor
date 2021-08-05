@@ -321,7 +321,7 @@ const getContestParticipantsData = async (contest) => {
                 await Promise.all(promises);
                 console.info(
                     `users fetched: ${i + limit} (${getPercentage(
-                        Math.min(i + limit, total),
+                        Math.min(i + limit, failedRanks.length),
                         total
                     )}%)`
                 );
@@ -345,8 +345,10 @@ const getContestParticipantsData = async (contest) => {
             console.log("Unable to fetch these ranks: ", failed);
             return [];
         }
-        contest.users_fetched = true;
-        await contest.save();
+        await Contest.updateOne(
+            { _id: contest._id },
+            { $set: { users_fetched: true } }
+        );
         return result;
     } catch (err) {
         console.error(err);
@@ -369,9 +371,9 @@ const updateUsers = async (job) => {
         const total = users.length;
 
         const failed = [];
-        const totalSuccess = 0;
+        let totalSuccess = 0;
         const fetchUserHelper = async (user) => {
-            const [data_region, username] = users[i]._id.split("/");
+            const [data_region, username] = user._id.split("/");
             const [result, err] = await fetchUserInfo(username, data_region);
             if (err) {
                 failed.push(user);
@@ -380,13 +382,14 @@ const updateUsers = async (job) => {
             }
         };
 
-        for (let i = 0; i < total; i++) {
+        for (let i = 0; i < total; i += rateLimit) {
             let promises = [];
             for (let j = 0; j < rateLimit && i + j < total; j++) {
                 if (
                     Date.now() - users[i + j].lastUpdated <
                     12 * 60 * 60 * 1000
                 ) {
+                    totalSuccess++;
                     continue;
                 }
                 promises.push(fetchUserHelper(users[i + j]));
@@ -407,5 +410,4 @@ const updateUsers = async (job) => {
 };
 
 exports.getContestParticipantsData = getContestParticipantsData;
-exports.fetchUserInfo = fetchUserInfo;
 exports.updateUsers = updateUsers;

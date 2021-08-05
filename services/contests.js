@@ -11,13 +11,13 @@ const fetchContestRankings = async function (contestSlug) {
         if (contest.rankings_fetched) {
             return [contest, null];
         }
-
+        contest.rankings = [];
         console.log(`fetching ${contestSlug} ...`);
         let resp = await fetch(
             `https://leetcode.com/contest/api/ranking/${contestSlug}/?region=global`
         );
         resp = await resp.json();
-        let pages = Math.floor(resp.user_num / 25);
+        let pages = Math.ceil(resp.user_num / 25);
         let all_rankings = [];
         let failed = [];
         let lastPage = Math.MAX_SAFE_INTEGER;
@@ -29,7 +29,7 @@ const fetchContestRankings = async function (contestSlug) {
             if (pageNo > lastPage) {
                 return;
             }
-            console.log(`Fetching rankings (${contestSlug}): page: ${pageNo}`);
+            // console.log(`Fetching rankings (${contestSlug}): page: ${pageNo}`);
             try {
                 let res = await fetch(
                     `https://leetcode.com/contest/api/ranking/${contestSlug}/?pagination=${pageNo}&region=global`
@@ -75,10 +75,10 @@ const fetchContestRankings = async function (contestSlug) {
                     `Fetched rankings (${contestSlug} page: ${pageNo})`
                 );
             } catch (err) {
-                console.log(
-                    `Failed to fetch rankings (${contestSlug} page: ${pageNo})`,
-                    err.message
-                );
+                // console.log(
+                //     `Failed to fetch rankings (${contestSlug} page: ${pageNo})`,
+                //     err.message
+                // );
                 if (retries > 0) {
                     await fetchPageRankings(pageNo, retries - 1);
                 } else if (throwError) {
@@ -101,13 +101,17 @@ const fetchContestRankings = async function (contestSlug) {
         for (let i = 0; i < failed.length; i++) {
             await fetchPageRankings(failed[i], maxRetries, true);
         }
-
+        console.log(`(${contestSlug}) Rankings fetched from leetcode!`);
         all_rankings.sort((a, b) => (a.rank > b.rank ? 1 : -1));
+
         contest.rankings = all_rankings;
         contest.rankings_fetched = true;
         contest.user_num = all_rankings.length;
-        await contest.update();
-        console.log(`Updated Rankings in ${contestSlug}.`);
+        console.time(`Saving rankings in db (${contestSlug})`);
+        await contest.save();
+        console.timeEnd(`Saving rankings in db (${contestSlug})`);
+        console.log(`Updated rankings in db (${contestSlug}).`);
+
         return [contest, null];
     } catch (err) {
         return [null, err];
