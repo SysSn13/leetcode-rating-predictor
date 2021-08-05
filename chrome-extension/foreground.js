@@ -38,7 +38,6 @@ if (!window.CFPredictorInjected) {
             predictionsTimer = setTimeout(fetchPredictions, 100);
             return;
         }
-        console.log("fetching!");
         const tbody = document.querySelector("tbody");
         const rows = tbody.querySelectorAll("tr");
         const contestId = document
@@ -105,16 +104,21 @@ if (!window.CFPredictorInjected) {
                                 } else {
                                     td = document.createElement("td");
                                 }
-                                const delta =
-                                    Math.round(item.delta * 100) / 100;
-                                td.innerText = delta > 0 ? "+" + delta : delta;
-                                if (delta > 0) {
-                                    td.style.color = "green";
-                                } else {
+                                if (item.delta == null) {
+                                    td.innerText = "?";
                                     td.style.color = "gray";
+                                } else {
+                                    const delta =
+                                        Math.round(item.delta * 100) / 100;
+                                    td.innerText =
+                                        delta > 0 ? "+" + delta : delta;
+                                    if (delta > 0) {
+                                        td.style.color = "green";
+                                    } else {
+                                        td.style.color = "gray";
+                                    }
+                                    // td.style.fontWeight = "bold";
                                 }
-                                td.style.fontWeight = "bold";
-
                                 if (!rowsChanged.has(rowIndex)) {
                                     row.appendChild(td);
                                 }

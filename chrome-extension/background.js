@@ -1,9 +1,7 @@
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (
         changeInfo.status === "complete" &&
-        /^https:\/\/leetcode.com\/contest\/[a-zA-Z1-9-]*\/ranking\//.test(
-            tab.url
-        )
+        /^https:\/\/leetcode.com\/contest\/.*\/ranking\//.test(tab.url)
     ) {
         chrome.scripting
             .executeScript({
@@ -11,12 +9,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                 files: ["./foreground.js"],
             })
             .then(() => {
-                console.log("Injected the foreground script.");
+                console.log(
+                    `Injected the foreground script into tab: ${tabId}`
+                );
             })
             .catch((err) => console.error(err));
-        console.log(tabId);
-        console.log(changeInfo);
-        console.log(tab);
     }
 });
 
@@ -28,11 +25,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         url.searchParams.set("contestId", request.data.contestId);
         let handles = "";
         request.data.handles.forEach((handle, index) => {
-            console.log(handle, index);
             handles +=
                 handle + (index !== request.data.handles.length - 1 ? ";" : "");
         });
-        console.log(handles);
         url.searchParams.set("handles", handles);
         fetch(url)
             .then((res) => res.json())
