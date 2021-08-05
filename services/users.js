@@ -1,53 +1,16 @@
-const { User, ContestHistory } = require("../models/users");
+const { User } = require("../models/user");
 const Contest = require("../models/contest");
 const fetch = require("node-fetch");
 
 const BASE_URL = "https://leetcode.com";
 const BASE_CN_URL = "https://leetcode-cn.com";
-const { getUserId } = require("./helpers");
-async function getLastContestStartTime(user_id) {
+const { getUserId } = require("../helpers");
+
+async function fetchUserDataUSRegion(username, retries = 4, updateDB = true) {
     try {
-        let lastStartTime = 0;
-        const user = await User.findOne({
-            _id: user_id,
-        })
-            .where("contestsHistory")
-            .slice([-1, 1]);
-        if (user && user.contestsHistory && user.contestsHistory.length > 0) {
-            lastStartTime = user.contestsHistory[0].startTime;
-        }
-        return [lastStartTime, null];
-    } catch (err) {
-        return [0, err];
-    }
-}
-async function pushContestHistory(user_id, contestsHistory) {
-    try {
-        await User.findOneAndUpdate(
-            {
-                _id: user_id,
-            },
-            {
-                $push: {
-                    contestsHistory: contestsHistory,
-                },
-            },
-            {
-                upsert: true,
-            }
-        );
-        return null;
-    } catch (err) {
-        return err;
-    }
-}
-async function fetchUserDataUSRegion(username) {
-    try {
-        console.log(`fetching user ${username}'s info from ${BASE_URL}...`);
         let attendedContestsCount,
             rating,
             globalRanking,
-            contestsHistory,
             user_id = getUserId(username, "US");
         var resp = await fetch(BASE_URL + "/graphql", {
             headers: {
@@ -57,9 +20,9 @@ async function fetchUserDataUSRegion(username) {
                 "cache-control": "no-cache",
                 "content-type": "application/json",
                 pragma: "no-cache",
+                "sec-ch-ua-mobile": "?0",
                 "sec-ch-ua":
                     '" Not;A Brand";v="99", "Google Chrome";v="91", "Chromium";v="91"',
-                "sec-ch-ua-mobile": "?0",
                 "sec-fetch-dest": "empty",
                 "sec-fetch-mode": "cors",
                 "sec-fetch-site": "same-origin",
@@ -73,88 +36,81 @@ async function fetchUserDataUSRegion(username) {
                 rating\
                 globalRanking\
                 }\
-                userContestRankingHistory(username: $username) {\
-                contest {\
-                    title\
-                    startTime\
-                }\
-                rating\
-                ranking\
-                }\
             }\
             "}`,
             method: "POST",
             mode: "cors",
         });
+
+        if (resp.status != 200) {
+            if (retries > 0) {
+                const res = await fetchUserDataUSRegion(
+                    username,
+                    retries - 1,
+                    updateDB
+                );
+                return res;
+            }
+            return [null, new Error(resp.statusText)];
+        }
+
         resp = await resp.json();
         if (resp.errors || !resp.data) {
-            return new Error(
-                `Error while fetching ${username}'s data from ${BASE_URL}`
-            );
+            return [
+                {
+                    rating: -1,
+                    isFirstContest: false,
+                },
+                null,
+            ];
         }
-        // current rankings
+
         ranking = resp.data.userContestRanking;
         if (ranking) {
             attendedContestsCount = ranking.attendedContestsCount;
             rating = ranking.rating;
             globalRanking = ranking.globalRanking;
+        } else {
+            rating = 1500;
+            attendedContestsCount = 0;
         }
-        const exists = await User.exists({ _id: user_id });
-
+        const result = {
+            rating: rating,
+            isFirstContest: attendedContestsCount === 0,
+        };
+        if (!updateDB) {
+            return [result, null];
+        }
+        let user = await User.findById(user_id, { _id: 1 });
+        const exists = user != null;
         if (!exists) {
-            const user = new User({
-                _id: user_id,
-                attendedContestsCount: attendedContestsCount,
-                rating: rating,
-                globalRanking: globalRanking,
-                lastUpdated: Date.now(),
-            });
-            await user.save();
+            user = new User({ _id: user_id });
         }
-        let lastStartTime = 0,
-            err;
-        if (exists) {
-            [lastStartTime, err] = await getLastContestStartTime(user_id);
-            if (err) {
-                return err;
-            }
-        }
-        // contests history
-        history = resp.data.userContestRankingHistory;
-        contestsHistory = history
-            .map((ele) => {
-                if (
-                    ele.contest.startTime &&
-                    ele.contest.startTime > lastStartTime
-                ) {
-                    return new ContestHistory({
-                        _id: ele.contest.title
-                            .trim()
-                            .replace(/ /g, "-")
-                            .toLowerCase(),
-                        title: ele.contest.title,
-                        startTime: ele.contest.startTime,
-                        rating: ele.rating,
-                        ranking: ele.ranking,
-                    });
-                }
-            })
-            .filter((item) => item != undefined);
-        if (contestsHistory.length > 0) {
-            return pushContestHistory(user_id, contestsHistory);
-        }
+        user.attendedContestsCount = attendedContestsCount;
+        user.rating = rating;
+        user.globalRanking = globalRanking;
+        user.lastUpdated = Date.now();
+        await user.save();
+
+        return [result, null];
     } catch (err) {
-        return err;
+        if (retries > 0) {
+            const res = await fetchUserDataUSRegion(
+                username,
+                retries - 1,
+                updateDB
+            );
+            return res;
+        }
+        return [null, err];
     }
 }
 
-async function fetchUserDataCNRegion(username) {
+async function fetchUserDataCNRegion(username, retries = 4, updateDB = true) {
     try {
-        console.log(`fetching user ${username}'s info from ${BASE_CN_URL}...`);
         let attendedContestsCount,
             rating,
             globalRanking,
-            contestsHistory,
             user_id = getUserId(username, "CN");
         let resp = await fetch(BASE_CN_URL + "/graphql/", {
             headers: {
@@ -191,235 +147,265 @@ async function fetchUserDataCNRegion(username) {
                 }\
               }\
             }\
-            userContestRanking(userSlug: $userSlug) {\
-                currentRatingRanking\
-                ratingHistory\
-                contestRankingHistoryV2\
-                contestHistory\
-                __typename\
-              }\
           }\
           "}`,
             method: "POST",
             mode: "cors",
         });
+
+        if (resp.status != 200) {
+            if (retries > 0) {
+                const res = await fetchUserDataCNRegion(
+                    username,
+                    retries - 1,
+                    updateDB
+                );
+                return res;
+            }
+            return [null, new Error(resp.statusText)];
+        }
+
         resp = await resp.json();
 
-        if (resp.errors || !resp.data) {
-            return Error(
-                `Error while fetching ${username}'s data from ${BASE_CN_URL}`
-            );
+        if (
+            resp.errors ||
+            !resp.data ||
+            !resp.data.userProfilePublicProfile ||
+            !resp.data.userProfilePublicProfile.profile
+        ) {
+            return [
+                {
+                    rating: -1,
+                    isFirstContest: false,
+                },
+                null,
+            ];
         }
 
         let profile = resp.data.userProfilePublicProfile.profile;
         attendedContestsCount = parseInt(profile.contestCount);
         if (attendedContestsCount > 0) {
-            // rankings
             let ranking = profile.ranking;
             globalRanking = ranking.currentGlobalRanking;
             rating = parseFloat(ranking.currentRating);
+        } else rating = 1500;
 
-            // contests history
-            let ratingHistory = JSON.parse(
-                resp.data.userContestRanking.ratingHistory
-            );
-            let contestHistory = JSON.parse(
-                resp.data.userContestRanking.contestHistory
-            );
-            let contestRankingHistoryV2 = JSON.parse(
-                resp.data.userContestRanking.contestRankingHistoryV2
-            );
-            const getRanking = (rank) => {
-                if (rank) {
-                    return rank.ranking;
-                }
-                return 0;
-            };
-            let currRating = 1500;
-            const getRating = (rating) => {
-                if (rating) {
-                    return (currRating = rating);
-                }
-                return currRating;
-            };
-            contestsHistory = ratingHistory.map(
-                (val, ind) =>
-                    new ContestHistory({
-                        _id: contestHistory[ind].title_slug.trim(),
-                        title: contestHistory[ind].title.trim(),
-                        rating: getRating(val),
-                        ranking: getRanking(contestRankingHistoryV2[ind]),
-                    })
-            );
-        }
-
-        user = new User({
-            attendedContestsCount: attendedContestsCount,
+        const result = {
+            isFirstContest: attendedContestsCount === 0,
             rating: rating,
-            globalRanking: globalRanking,
-            contestsHistory: contestsHistory,
-            lastUpdated: Date.now(),
-        });
-
-        await User.findOneAndUpdate(
-            {
-                _id: user_id,
-            },
-            user,
-            {
-                upsert: true,
-            }
-        );
-        return null;
+        };
+        if (!updateDB) {
+            return [result, null];
+        }
+        let user = await User.findById(user_id, { _id: 1 });
+        const exists = user != null;
+        if (!exists) {
+            user = new User({ _id: user_id });
+        }
+        user.attendedContestsCount = attendedContestsCount;
+        user.rating = rating;
+        user.globalRanking = globalRanking;
+        user.lastUpdated = Date.now();
+        await user.save();
+        return [result, null];
     } catch (err) {
-        return err;
+        if (retries > 0) {
+            const res = await fetchUserDataCNRegion(
+                username,
+                retries - 1,
+                updateDB
+            );
+            return res;
+        }
+        return [null, err];
     }
 }
+
+const fetchUserInfo = async (username, dataRegion = "US") => {
+    if (dataRegion === "CN") {
+        const [result, err] = await fetchUserDataCNRegion(username);
+        return [result, err];
+    } else {
+        const [result, err] = await fetchUserDataUSRegion(username);
+        return [result, err];
+    }
+};
 
 const getCurrentRating = async (
     username,
     dataRegion = "US",
-    contestSlug = ""
+    checkInDB = true
 ) => {
     const user_id = getUserId(username, dataRegion);
     let result = {
         isFirstContest: false,
         rating: -1,
-        actualRating: 1500,
     };
-    let user;
-    if (contestSlug === "") {
-        user = await User.findById(user_id, {
-            rating: 1,
-            attendedContestsCount: 1,
-        });
-    } else {
-        user = await User.findById(user_id);
-    }
-    if (!user) {
-        return result;
-    }
-
-    result.isFirstContest = user.attendedContestsCount === 0;
-
-    if (contestSlug === "") {
-        result.rating = user.rating;
-        return result;
-    }
-
-    if (result.isFirstContest) {
-        result.rating = 1500;
-        return result;
-    }
-
-    if (!user.contestsHistory) {
-        return result;
-    }
-    let currentContest = user.attendedContestsCount;
-    for (let i = user.contestsHistory.length - 1; i >= 0; i--) {
-        if (user.contestsHistory[i]._id === contestSlug) {
-            result.rating = i > 0 ? user.contestsHistory[i - 1].rating : 1500;
-            result.actualRating = user.contestsHistory[i].rating;
-            result.isFirstContest = currentContest === 1;
-            if (user.contestsHistory[i].ranking != 0) {
-                currentContest--;
-            }
-            break;
+    try {
+        let user;
+        if (checkInDB) {
+            user = await User.findById(user_id, { contestsHistory: 0 });
         }
-    }
-    if (result.rating === -1) {
-        result.rating = user.rating;
+        if (user) {
+            result.isFirstContest = user.attendedContestsCount === 0;
+            result.rating = user.rating;
+        } else {
+            const [userInfo, err] = await fetchUserInfo(username, dataRegion);
+            if (err) {
+                console.log(`Failed to fetch: ${user_id}`);
+                result.error = err;
+            } else {
+                if (userInfo) {
+                    result = userInfo;
+                }
+            }
+        }
+    } catch (err) {
+        result.error = err;
+        return result;
     }
     return result;
 };
-const fetchUserInfo = async (username, dataRegion = "US") => {
-    const exists = await User.exists({ _id: getUserId(username, dataRegion) });
-    if (exists) {
-        return null;
-    }
-    let err;
-    if (dataRegion === "CN") {
-        err = await fetchUserDataCNRegion(username);
-    } else {
-        err = await fetchUserDataUSRegion(username);
-    }
-    return err;
-};
 
-const getUser = async (username, dataRegion = "US") => {
-    let user_id = getUserId(username, dataRegion);
-    let user = await User.findById(user_id);
-    if (!user) {
-        let err;
-        if (dataRegion === "CN") {
-            err = await fetchUserDataCNRegion(username);
-        } else {
-            err = await fetchUserDataUSRegion(username);
-        }
-
-        if (err) {
-            console.log(err);
-        } else {
-            user = await User.findById(user_id);
-        }
-    }
-    return user;
-};
-
-// fetches data from leetcode
-const fetchContestParticipantsData = async (contestSlug) => {
+// fetches data required for predictions
+const getContestParticipantsData = async (contest) => {
     try {
-        const contest = await Contest.findById(contestSlug);
-        if (!contest) {
-            return Error(`Contest ${contestSlug} not found`);
+        if (!contest || !contest.rankings) {
+            return [];
         }
-        const limit = 100;
-        const total = contest.rankings.length;
+        let total = contest.rankings.length;
+        let result = new Array(total),
+            failed = [];
+        let limit = 500;
 
+        const getCurrentRatingHelper = async (index, isFailed = false) => {
+            let userData = await getCurrentRating(
+                contest.rankings[index].user_slug,
+                contest.rankings[index].data_region,
+                !isFailed
+            );
+            result[index] = userData;
+            if (userData.error) {
+                failed.push(index);
+            }
+        };
+        const getPercentage = (done, total) => {
+            if (total <= 0) {
+                return -1;
+            }
+            return Math.round(((done * 100) / total) * 100) / 100;
+        };
         for (let i = 0; i < total; i += limit) {
             let promises = [];
             for (let j = 0; j < limit && i + j < total; j++) {
-                promises.push(
-                    fetchUserInfo(
-                        contest.rankings[i + j].user_slug,
-                        contest.rankings[i + j].data_region
-                    )
-                );
+                promises.push(getCurrentRatingHelper(i + j));
             }
             await Promise.all(promises);
+            console.info(
+                `users fetched: ${i + limit} (${getPercentage(
+                    Math.min(i + limit, total),
+                    total
+                )}%)`
+            );
         }
-    } catch (err) {
-        return err;
-    }
-};
+        let failedRanks;
+        const retry = async (limit) => {
+            console.log("Total failed: ", failedRanks.length, "limit: ", limit);
+            for (let i = 0; i < failedRanks.length; i += limit) {
+                let promises = [];
+                for (let j = 0; j < limit && i + j < failedRanks.length; j++) {
+                    promises.push(
+                        getCurrentRatingHelper(failedRanks[i + j], true)
+                    );
+                }
+                await Promise.all(promises);
+                console.info(
+                    `users fetched: ${i + limit} (${getPercentage(
+                        Math.min(i + limit, total),
+                        total
+                    )}%)`
+                );
+            }
+        };
 
-// fetches data from db
-const getContestParticipantsData = async (contestSlug, latest = false) => {
-    try {
-        const contest = await Contest.findById(contestSlug);
-        if (!contest) {
+        const limits = [100, 20, 10, 5];
+        for (let i = 0; i < 10; i++) {
+            limits.push(1);
+        }
+
+        for (limit of limits) {
+            if (failed.length === 0) {
+                break;
+            }
+            failedRanks = failed;
+            failed = [];
+            await retry(limit);
+        }
+        if (failed.length) {
+            console.log("Unable to fetch these ranks: ", failed);
             return [];
         }
-        let result = new Array(contest.num_user);
-
-        const promises = contest.rankings.map(async (rank) => {
-            let userData = await getCurrentRating(
-                rank.user_slug,
-                rank.data_region,
-                latest ? "" : contestSlug
-            );
-            userData.username = rank.user_slug;
-            userData.rank = rank.rank;
-            result[rank.rank - 1] = userData;
-        });
-
-        await Promise.all(promises);
+        contest.users_fetched = true;
+        await contest.save();
         return result;
     } catch (err) {
         console.error(err);
         return [];
     }
 };
+
+const updateUsers = async (job) => {
+    try {
+        let offset = job.data.offset;
+        let limit = job.data.limit;
+        const users = await User.find({}, { lastUpdated: 1 })
+            .skip(offset)
+            .limit(limit);
+        if (!users) {
+            return;
+        }
+
+        const rateLimit = job.data.rateLimit;
+        const total = users.length;
+
+        const failed = [];
+        const totalSuccess = 0;
+        const fetchUserHelper = async (user) => {
+            const [data_region, username] = users[i]._id.split("/");
+            const [result, err] = await fetchUserInfo(username, data_region);
+            if (err) {
+                failed.push(user);
+            } else {
+                totalSuccess++;
+            }
+        };
+
+        for (let i = 0; i < total; i++) {
+            let promises = [];
+            for (let j = 0; j < rateLimit && i + j < total; j++) {
+                if (
+                    Date.now() - users[i + j].lastUpdated <
+                    12 * 60 * 60 * 1000
+                ) {
+                    continue;
+                }
+                promises.push(fetchUserHelper(users[i + j]));
+            }
+            await Promise.all(promises);
+            job.progress((totalSuccess * 100) / total);
+        }
+        for (user in failed) {
+            await fetchUserHelper(user);
+            job.progress((totalSuccess * 100) / total);
+        }
+        if (failed.length > 0) {
+            console.log(`Failed to fetch ${failed.length} users.`);
+        }
+    } catch (err) {
+        return err;
+    }
+};
+
 exports.getContestParticipantsData = getContestParticipantsData;
-exports.fetchContestParticipantsData = fetchContestParticipantsData;
-exports.getUser = getUser;
+exports.fetchUserInfo = fetchUserInfo;
+exports.updateUsers = updateUsers;

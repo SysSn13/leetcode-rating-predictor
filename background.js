@@ -14,8 +14,25 @@ const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
 serverAdapter.setBasePath("/bull-board");
 
 const initScheduler = async () => {
-    await jobScheduler.add({});
-    await jobScheduler.add({}, { repeat: { cron: "0 0 * * *" } });
+    await jobScheduler.add("contestScheduler", {});
+    await jobScheduler.add("updateUserDataScheduler", {
+        rateLimit: 3,
+        limit: 1000,
+    });
+
+    // repeat contestScheduler every day at midnight
+    await jobScheduler.add(
+        "contestScheduler",
+        {},
+        { repeat: { cron: "0 0 * * *" } }
+    );
+
+    // Repeat updateUserDataScheduler every 4 hours
+    await jobScheduler.add(
+        "updateUserDataScheduler",
+        { rateLimit: 3, limit: 1000 },
+        { repeat: { cron: "0 */4 * * *" } }
+    );
 };
 initScheduler();
 

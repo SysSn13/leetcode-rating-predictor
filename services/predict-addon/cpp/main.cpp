@@ -16,7 +16,7 @@ void PredictRatings(const FunctionCallbackInfo<Value> &args){
             isolate->ThrowException(
                 Exception::TypeError(
                     String::NewFromUtf8(
-                        isolate,"Wrong arguments"
+                        isolate,"Wrong arguments. THREAD_CNT must be a Number."
                         ).ToLocalChecked()
                     )
             );

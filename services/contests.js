@@ -1,41 +1,15 @@
 const fetch = require("node-fetch");
 const Contest = require("../models/contest");
+const { IsLatestContest } = require("../helpers");
 
-// async function pushRankingsToContest(
-//     contest_id,
-//     rankings,
-//     pagesCnt,
-//     islastPage
-// ) {
-//     try {
-//         await Contest.findOneAndUpdate(
-//             {
-//                 _id: contest_id,
-//             },
-//             {
-//                 $push: {
-//                     rankings: rankings,
-//                 },
-//                 $inc: {
-//                     pages_fetched: pagesCnt,
-//                 },
-//                 $set: {
-//                     rankings_fetched: islastPage,
-//                 },
-//             }
-//         );
-
-//         return null;
-//     } catch (err) {
-//         console.log(err);
-//         return err;
-//     }
-// }
 const fetchContestRankings = async function (contestSlug) {
     try {
-        let contest = await Contest.findById(contestSlug, { rankings: 0 });
+        let contest = await Contest.findById(contestSlug);
         if (!contest) {
-            return Error(`Contest ${contestSlug} not found in the db`);
+            return [null, Error(`Contest ${contestSlug} not found in the db`)];
+        }
+        if (contest.rankings_fetched) {
+            return [contest, null];
         }
 
         console.log(`fetching ${contestSlug} ...`);
@@ -46,16 +20,23 @@ const fetchContestRankings = async function (contestSlug) {
         let pages = Math.floor(resp.user_num / 25);
         let all_rankings = [];
         let failed = [];
+        let lastPage = Math.MAX_SAFE_INTEGER;
         const fetchPageRankings = async (
             pageNo,
             retries,
             throwError = false
         ) => {
+            if (pageNo > lastPage) {
+                return;
+            }
             console.log(`Fetching rankings (${contestSlug}): page: ${pageNo}`);
             try {
                 let res = await fetch(
                     `https://leetcode.com/contest/api/ranking/${contestSlug}/?pagination=${pageNo}&region=global`
                 );
+                if (res.status !== 200) {
+                    throw new Error(res.statusText);
+                }
                 res = await res.json();
                 rankings = res.total_rank
                     .filter(
@@ -86,15 +67,18 @@ const fetchContestRankings = async function (contestSlug) {
                         ranking["_id"] = username;
                         return ranking;
                     });
+                if (rankings.length < 25) {
+                    lastPage = Math.min(lastPage, pageNo);
+                }
                 all_rankings = all_rankings.concat(rankings);
                 console.log(
-                    `Fetched rankings (${contestSlug}): page: ${pageNo}`
+                    `Fetched rankings (${contestSlug} page: ${pageNo})`
                 );
             } catch (err) {
                 console.log(
-                    `Failed to fetch rankings (${contestSlug}, page: ${pageNo})`
+                    `Failed to fetch rankings (${contestSlug} page: ${pageNo})`,
+                    err.message
                 );
-                console.log(err);
                 if (retries > 0) {
                     await fetchPageRankings(pageNo, retries - 1);
                 } else if (throwError) {
@@ -121,11 +105,12 @@ const fetchContestRankings = async function (contestSlug) {
         all_rankings.sort((a, b) => (a.rank > b.rank ? 1 : -1));
         contest.rankings = all_rankings;
         contest.rankings_fetched = true;
-        contest.user_num = resp.user_num;
-        await contest.save();
+        contest.user_num = all_rankings.length;
+        await contest.update();
         console.log(`Updated Rankings in ${contestSlug}.`);
+        return [contest, null];
     } catch (err) {
-        return err;
+        return [null, err];
     }
 };
 const fetchContestsMetaData = async () => {
@@ -163,14 +148,10 @@ const fetchContestsMetaData = async () => {
         });
         res = await res.json();
 
-        const withinAWeek = (endTime) => {
-            return Date.now() - endTime <= 7 * 24 * 60 * 60 * 1000;
-        };
-
         for (let i = 0; i < res.data.allContests.length; i++) {
             let contest = res.data.allContests[i];
             const endTime = contest.startTime * 1000 + contest.duration * 1000;
-            if (!withinAWeek(endTime)) {
+            if (!IsLatestContest(endTime)) {
                 continue;
             }
             let contestExists = await Contest.exists({
@@ -179,13 +160,12 @@ const fetchContestsMetaData = async () => {
             if (contestExists) {
                 continue;
             }
-            console.log(contest.titleSlug);
             let newContest = new Contest({
                 _id: contest.titleSlug,
+                title: contest.title,
                 startTime: contest.startTime * 1000,
                 endTime: endTime,
                 lastUpdated: Date.now(),
-                num_user: contest.num_user,
             });
             await newContest.save();
             console.log(`created new contest: ${contest.titleSlug}`);
@@ -197,25 +177,7 @@ const fetchContestsMetaData = async () => {
         return null;
     }
 };
-const updateContestRankings = async function (contestSlug) {
-    try {
-        let contest = await Contest.findById(contestSlug, {
-            rankings: 0,
-        });
-
-        if (!contest) {
-            return Error(`contest ${contestSlug} not found in the db.`);
-        } else if (!contest.rankings_fetched) {
-            let err = await fetchContestRankings(contestSlug);
-            return err;
-        }
-        return null;
-    } catch (err) {
-        return err;
-    }
-};
 
 // exports
 exports.fetchContestsMetaData = fetchContestsMetaData;
-exports.updateContestRankings = updateContestRankings;
 exports.fetchContestRankings = fetchContestRankings;

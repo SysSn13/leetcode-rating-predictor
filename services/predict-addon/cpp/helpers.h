@@ -11,7 +11,7 @@ Rank unpackRank(Isolate* isolate,const Local<Object> rankObj){
             isolate->ThrowException(
                 Exception::TypeError(
                     String::NewFromUtf8(
-                        isolate,"Wrong arguments"
+                        isolate,"Wrong arguments. Array element properties do not have correct datatype."
                         ).ToLocalChecked()
                     )
                 );
@@ -25,7 +25,7 @@ vector<Rank> unpackRankList(Isolate* isolate,const FunctionCallbackInfo<Value> &
         isolate->ThrowException(
             Exception::TypeError(
                 String::NewFromUtf8(
-                    isolate,"Wrong arguments"
+                    isolate,"Wrong arguments. First argument must be an array."
                 ).ToLocalChecked()
                 )
             );
@@ -40,7 +40,7 @@ vector<Rank> unpackRankList(Isolate* isolate,const FunctionCallbackInfo<Value> &
             isolate->ThrowException(
                 Exception::TypeError(
                     String::NewFromUtf8(
-                        isolate,"Wrong arguments"
+                        isolate,"Wrong arguments. Array element does not has all required properties."
                     ).ToLocalChecked()
                     )
                 );

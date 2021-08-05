@@ -22,11 +22,16 @@ const rankingSchema = new Schema({
 });
 const ContestRankingsSchema = new Schema({
     _id: String,
+    title: String,
     startTime: Date,
     endTime: Date,
     contest_id: Number,
     user_num: Number,
     rankings_fetched: {
+        type: Boolean,
+        default: false,
+    },
+    users_fetched: {
         type: Boolean,
         default: false,
     },
