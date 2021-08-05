@@ -3,6 +3,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
+const bodyParser = require("body-parser");
 
 // database
 const mongoose = require("mongoose");
@@ -33,6 +34,7 @@ if (process.env.WEB == true) {
     app.set("views", __dirname + "/views");
     app.set("layout", "layouts/layout");
     app.use(expressLayouts);
+    app.use(bodyParser.urlencoded({ extended: true }));
     app.use(express.static("public"));
     app.use("/", webRouter);
     console.info("WEB is up.");

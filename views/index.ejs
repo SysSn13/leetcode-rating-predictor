@@ -1,3 +1,55 @@
-<div class="container">
-    <h1>Welcome to Leetcode Rating Predictor</h1>
-</div>
+<link rel="stylesheet" href="/stylesheets/tablestyle.css">
+<link rel="stylesheet" href="/stylesheets/main.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+
+<section class="content">
+  <h3 class="mb-5 mt-5" style="text-align: center; ">Leetcode Rating Predictor</h3>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12">
+
+        <div class="table-responsive table-scroll">
+          <table id="contest-table" class="table table-bg table-striped hover">
+            <thead>
+              <tr class="bg-primary">
+                <th scope="col">Contest Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">Start Time</th>
+                <th scope="col">Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for( let contest of contests ) { %>
+              <tr>
+                <td>    
+                <% if (contest.rankings_fetched) { %>
+                  <a href="/contests/<%= contest._id %>/ranking/1" style="text-decoration:none"><%= contest._id %></a> 
+                <% } else {%>
+                  <%= contest._id %> 
+                  <% } %> 
+              </td>
+                <% if (contest.startTime>Date.now()) { %>
+                <td>Upcoming</td>
+                <% } else { %>
+                <td>Virtual</td>
+                <% } %>
+                <td><%= contest.startTime %></td>
+                <td><%= (contest.endTime - contest.startTime)/60000 %> minutes</td>
+              </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#contest-table').DataTable({
+      "ordering": false
+    })
+  });
+</script>

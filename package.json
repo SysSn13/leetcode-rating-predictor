@@ -7,8 +7,8 @@
   },
   "main": "server.js",
   "scripts": {
-    "start": "node main.js --max_old_space_size=512",
-    "dev": "nodemon main.js --max_old_space_size=1024  --trace-warnings",
+    "start": "node main.js --max_old_space_size=1024",
+    "dev": "nodemon --max_old_space_size=1024  --trace-warnings main.js",
     "buildAddon": "npm run build --prefix ./services/predict-addon/"
   },
   "keywords": [],
@@ -16,6 +16,7 @@
   "license": "MIT",
   "dependencies": {
     "@bull-board/express": "^3.3.1",
+    "body-parser": "^1.19.0",
     "bull": "^3.27.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
