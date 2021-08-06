@@ -1,0 +1,10 @@
+body {
+    font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, Arial, sans-serif;
+    font-weight: 400;
+    min-width: 320px;
+    padding: 0;
+    margin: 0;
+}
+.icon{
+    max-width: 32px;
+}
