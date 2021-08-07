@@ -2,6 +2,7 @@ if (process.env.NODE_ENV !== "production") {
     require("dotenv").config();
 }
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 const expressLayouts = require("express-ejs-layouts");
 const bodyParser = require("body-parser");
 
@@ -19,6 +20,17 @@ db.once("open", () => {
 });
 
 const app = express();
+
+const limiter = rateLimit({
+    max: process.env.RATE_LIMIT || 50,
+    windowMs: process.env.RATE_LIMIT_WINDOW || 10 * 1000,
+    message: "Too many requests, please try again later.",
+});
+app.enable("trust proxy");
+app.use(limiter);
+
+// body limit
+app.use(express.json({ limit: "10kb" }));
 
 // background
 if (process.env.BACKGROUND == true) {
@@ -43,6 +55,15 @@ if (process.env.WEB == true) {
 
 // api
 if (!process.env.API_DISABLED) {
+    const apiLimiter = rateLimit({
+        max: process.env.API_RATE_LIMIT || 20,
+        windowMs: process.env.API_RATE_LIMIT_WINDOW || 10 * 1000,
+        message: "Too many requests, please try again later.",
+        // keyGenerator: function (req) {
+        //     return req.ip;
+        // },
+    });
+    app.use("/api/", apiLimiter);
     const apiRoutes = require("./routes/api");
     app.use("/api/v1/", apiRoutes);
     console.info("API is up.");

@@ -6,7 +6,7 @@ const { ExpressAdapter } = require("@bull-board/express");
 
 const serverAdapter = new ExpressAdapter();
 
-const { addQueue, removeQueue, setQueues, replaceQueues } = createBullBoard({
+const bullBoard = createBullBoard({
     queues: [new BullAdapter(predictQueue), new BullAdapter(jobScheduler)],
     serverAdapter: serverAdapter,
 });
@@ -34,6 +34,7 @@ const initScheduler = async () => {
         { repeat: { cron: "0 */4 * * *" } }
     );
 };
+
 initScheduler();
 
 module.exports.bullBoardServerAdapter = serverAdapter;
