@@ -15,7 +15,7 @@
 
 <br />
 <div align="center">
-  <a href="https://chrome.google.com/webstore/detail/lc-predictor/jfhgaegpgiepniiebglgjhhfnjcibphh"><img
+  <a href="https://chrome.google.com/webstore/detail/lc-predictor/jfhgaegpgiepniiebglgjhhfnjcibphh" target="_blank"><img
       src="https://i.imgur.com/iswHnpJ.png" alt="Chrome Web Store" height="50">
     </img>
   </a>
