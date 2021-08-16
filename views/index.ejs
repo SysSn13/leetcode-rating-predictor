@@ -39,7 +39,7 @@
                 <% } else { %>
                 <td>Virtual</td>
                 <% } %>
-                <td><%= contest.startTime %></td>
+                <td class="startTime"><%= contest.startTime %></td>
                 <td><%= (contest.endTime - contest.startTime)/60000 %> minutes</td>
               </tr>
               <% } %>
@@ -59,4 +59,13 @@ new simpleDatatables.DataTable("#contest-table", {
 	fixedHeight: true,
   sortable:false,
 });
+
+const contests = document.getElementsByClassName('startTime')
+  for (let contest of contests) {
+    let startTime = new Date(contest.textContent)
+    startTime = `${startTime.toLocaleString('en-US', {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    })} ${Intl.DateTimeFormat().resolvedOptions().timeZone}`
+    contest.textContent = startTime
+  }
 </script>

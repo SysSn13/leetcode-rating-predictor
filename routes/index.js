@@ -8,20 +8,6 @@ router.get("/", async (req, res) => {
             startTime: "desc",
         });
 
-        contests.map((contest) => {
-            contest.startTime = new Date(
-                contest.startTime.toLocaleString('en-US', {
-                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                })
-            )
-
-            contest.endTime = new Date(
-                contest.endTime.toLocaleString('en-US', {
-                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                })
-            )
-        })
-
         res.render("index", {
             contests: contests,
             title: "Leetcode Rating Predictor",
