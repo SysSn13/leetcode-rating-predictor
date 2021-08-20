@@ -18,6 +18,10 @@ scheduler.process("contestScheduler", async (job, done) => {
     let cnt = 0;
 
     contests.forEach((contest) => {
+        let remainingTime = getRemainingTime(contest.endTime);
+        if (remainingTime > 0) {
+            remainingTime += 5 * 60 * 1000; // 5 minutes delay for upcoming contests
+        }
         if (!contest.ratings_predicted && IsLatestContest(contest.endTime)) {
             contestPredictionQueue.add(
                 "predictRatings",
@@ -27,7 +31,7 @@ scheduler.process("contestScheduler", async (job, done) => {
                 {
                     jobId: contest._id,
                     attempts: 5,
-                    delay: getRemainingTime(contest.endTime) + 10 * 1000,
+                    delay: remainingTime,
                     backoff: 10000,
                     priority: 1,
                 }
