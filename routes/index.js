@@ -7,6 +7,7 @@ router.get("/", async (req, res) => {
         let contests = await Contest.find({}, { rankings: 0 }).sort({
             startTime: "desc",
         });
+
         res.render("index", {
             contests: contests,
             title: "Leetcode Rating Predictor",
