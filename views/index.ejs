@@ -54,18 +54,22 @@
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 <script>
 
-new simpleDatatables.DataTable("#contest-table", {
+const dataTable = new simpleDatatables.DataTable("#contest-table", {
 	searchable: true,
 	fixedHeight: true,
   sortable:false,
 });
 
 const contests = document.getElementsByClassName('startTime')
+for (let contest of contests) {
+  let startTime = new Date(contest.textContent)
+  contest.textContent = startTime.toLocaleString()
+}
+dataTable.on('datatable.page', function(page) {
+  const contests = document.getElementsByClassName('startTime')
   for (let contest of contests) {
     let startTime = new Date(contest.textContent)
-    startTime = `${startTime.toLocaleString('en-US', {
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    })} ${Intl.DateTimeFormat().resolvedOptions().timeZone}`
-    contest.textContent = startTime
+    contest.textContent = startTime.toLocaleString()
   }
+})
 </script>
