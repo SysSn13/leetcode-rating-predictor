@@ -67,7 +67,7 @@ const checkPredictRatingJobs = async () => {
     for (job of jobs) {
         date = Math.min(date, new Date(job.opts.timestamp + job.opts.delay));
     }
-    return date - Date.now() <= 1 * 24 * 60 * 60 * 100;
+    return date - Date.now() <= 1 * 60 * 60 * 1000;
 };
 
 predictQueue.on("completed", (job, result) => {
