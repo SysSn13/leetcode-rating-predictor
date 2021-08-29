@@ -32,24 +32,42 @@ app.use(limiter);
 // body limit
 app.use(express.json({ limit: "10kb" }));
 
+app.set("view engine", "ejs");
+app.set("views", __dirname + "/views");
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+
 // background
 if (process.env.BACKGROUND == true) {
     const { bullBoardServerAdapter } = require("./background");
-    app.use("/bull-board", bullBoardServerAdapter.getRouter());
+    const {ensureLoggedIn} = require("connect-ensure-login");
+    const passport = require('passport');
+    const session = require('express-session');
+    app.use(session({secret : 'keyboard cat'}));
+    app.use(passport.initialize({}));
+    app.use(passport.session({}));
+    const authRouter = require("./routes/auth");
+    app.use("/login", authRouter);
+    app.use("/bull-board", 
+        ensureLoggedIn('/login'),
+        bullBoardServerAdapter.getRouter()
+    );
     console.info("BACKGROUND is up.");
 }
 
 // web
 if (process.env.WEB == true) {
-    const webRouter = require("./web");
-    app.set("view engine", "ejs");
-    app.set("views", __dirname + "/views");
     app.set("layout", "layouts/layout");
     app.set("layout extractScripts", true);
     app.use(expressLayouts);
-    app.use(bodyParser.urlencoded({ extended: true }));
-    app.use(express.static("public"));
-    app.use("/", webRouter);
+    const unless = require('express-unless');
+    const webRouter = require("./web");
+    webRouter.unless = unless;
+    app.use("/", 
+        webRouter.unless({
+            path : ['/login', '/bull-board']
+        }),
+    );
     console.info("WEB is up.");
 }
 

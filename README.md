@@ -184,7 +184,7 @@ THREAD_CNT: Number of threads for prediction.(default: 4)
 
 ## Browser extension
 
-Current only chrome browser is suported. It uses manifest V3. See [this](https://developer.chrome.com/docs/extensions/mv3/getstarted/) for getting started with extension development. Source code for the extension is in `./chrome-extension`.
+Current only chrome browser is supported. It uses manifest V3. See [this](https://developer.chrome.com/docs/extensions/mv3/getstarted/) for getting started with extension development. Source code for the extension is in `./chrome-extension`.
 
 ## Contributing
 
@@ -207,6 +207,17 @@ For contributing in the source code, please follow these steps:
     ```
 -   Open a Pull Request
 
+# Contributors
+<a href="https://github.com/SysSn13/leetcode-rating-predictor/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=SysSn13/leetcode-rating-predictor" />
+</a>
+
+# Stargazers
+[![Stargazers repo roster for @SysSn13/leetcode-rating-predictor](https://reporoster.com/stars/SysSn13/leetcode-rating-predictor)](https://github.com/SysSn13/leetcode-rating-predictor/stargazers)
+
 # License
 
 Distributed under the MIT License. See [LICENSE](/LICENSE) for more information.
+
+<br>
+<p align="center"><a href="https://github.com/SysSn13/leetcode-rating-predictor#"><img src="http://randojs.com/images/backToTopButton.png" alt="Back to top" height="29"/></a></p>

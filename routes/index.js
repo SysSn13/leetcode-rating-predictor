@@ -2,6 +2,8 @@ const express = require("express");
 const Contest = require("../models/contest");
 const router = express.Router();
 const rankingsController = require("../controllers/rankingsController");
+
+
 router.get("/", async (req, res) => {
     try {
         let contests = await Contest.find({}, { rankings: 0 }).sort({

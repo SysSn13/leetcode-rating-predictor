@@ -37,4 +37,6 @@ const initScheduler = async () => {
 
 initScheduler();
 
+serverAdapter.getRouter();
+
 module.exports.bullBoardServerAdapter = serverAdapter;

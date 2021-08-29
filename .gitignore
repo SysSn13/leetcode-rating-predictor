@@ -1,3 +1,5 @@
 .env
 node_modules
+data/
+services/predict-addon/build
 .snyk
