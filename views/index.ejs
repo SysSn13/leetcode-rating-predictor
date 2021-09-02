@@ -1,46 +1,64 @@
 <link rel="stylesheet" href="/stylesheets/tablestyle.css">
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
-
-<section class="content">
-  <h2 class="mb-5 mt-5" style="text-align: center; ">Leetcode Rating Predictor</h2>
-  <div class="container">
-    <div align="center">
-      <a href="https://chrome.google.com/webstore/detail/lc-predictor/jfhgaegpgiepniiebglgjhhfnjcibphh" target="_blank">
-        <img
-          src="https://i.imgur.com/iswHnpJ.png" alt="Chrome Web Store">
-        </img>
-      </a>
+<section class="content mt-5">
+  <div class="mb-4 text-center">
+    <h2 style="font-weight: bold;">Leetcode Rating Predictor</h2>
+    <div class="text-muted">
+      <i>Get your rating changes right after the completion of Leetcode contests</i>
     </div>
+  </div>
+  <div class="container">
+    <div class="d-flex justify-content-around">
+      <div>
+        <a href="https://chrome.google.com/webstore/detail/lc-predictor/jfhgaegpgiepniiebglgjhhfnjcibphh"
+          target="_blank">
+          <img src="https://i.imgur.com/iswHnpJ.png" alt="Chrome Web Store" style="max-width: 90%;">
+          </img>
+        </a>
+      </div>
+      <div>
+        <iframe class="mt-1"
+          src="https://ghbtns.com/github-btn.html?user=SysSn13&repo=leetcode-rating-predictor&type=star&count=true&size=large"
+          frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
+      </div>
+    </div>
+
     <div class="row justify-content-center">
       <div class="col-12">
-
+        <style>
+          th,td {
+              text-align: center !important;
+          }
+        </style>
         <div class="table-responsive-lg">
           <table id="contest-table" class="table table-striped hover">
             <thead>
               <tr class="bg-primary">
                 <th scope="col">Contest Name</th>
-                <th scope="col">Type</th>
                 <th scope="col">Start Time</th>
                 <th scope="col">Duration</th>
+                <th scope="col">Rankings Fetched</th>
+                <th scope="col">Predicted</th>
               </tr>
             </thead>
             <tbody>
               <% for( let contest of contests ) { %>
               <tr>
-                <td>    
-                <% if (contest.rankings_fetched) { %>
-                  <a href="/contest/<%= contest._id %>/ranking/1" style="text-decoration:none"><%= contest._id %></a> 
-                <% } else {%>
-                  <%= contest._id %> 
-                  <% } %> 
-              </td>
-                <% if (contest.startTime>Date.now()) { %>
-                <td>Upcoming</td>
-                <% } else { %>
-                <td>Virtual</td>
-                <% } %>
+                <td>
+                  <% if (contest.rankings_fetched) { %>
+                  <a href="/contest/<%= contest._id %>/ranking/1" style="text-decoration:none"><%= contest._id %></a>
+                  <% } else {%>
+                  <%= contest._id %>
+                  <% } %>
+                </td>
                 <td class="startTime"><%= contest.startTime %></td>
                 <td><%= (contest.endTime - contest.startTime)/60000 %> minutes</td>
+                <td>
+                  <%= contest.rankings_fetched?"Yes":"No" %> 
+                </td>
+                <td>
+                  <%= contest.ratings_predicted?"Yes":"No" %> 
+                </td>
               </tr>
               <% } %>
             </tbody>
@@ -53,23 +71,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 <script>
+  const dataTable = new simpleDatatables.DataTable("#contest-table", {
+    searchable: true,
+    fixedHeight: true,
+    sortable: false,
+  });
 
-const dataTable = new simpleDatatables.DataTable("#contest-table", {
-	searchable: true,
-	fixedHeight: true,
-  sortable:false,
-});
-
-const contests = document.getElementsByClassName('startTime')
-for (let contest of contests) {
-  let startTime = new Date(contest.textContent)
-  contest.textContent = startTime.toLocaleString()
-}
-dataTable.on('datatable.page', function(page) {
   const contests = document.getElementsByClassName('startTime')
   for (let contest of contests) {
     let startTime = new Date(contest.textContent)
     contest.textContent = startTime.toLocaleString()
   }
-})
+  dataTable.on('datatable.page', function (page) {
+    const contests = document.getElementsByClassName('startTime')
+    for (let contest of contests) {
+      let startTime = new Date(contest.textContent)
+      contest.textContent = startTime.toLocaleString()
+    }
+  })
 </script>

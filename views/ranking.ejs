@@ -1,7 +1,16 @@
 <link rel="stylesheet" href="/stylesheets/tablestyle.css">
 
-<div class="container">
-    <a href="/" class="btn btn-primary btn-md mt-3" role="button">All Contests</a>
+<div class="container mt-3">
+
+    <div class="d-flex">
+        <div class="me-auto p-2 ">
+            <a href="/" class="btn btn-primary btn-md" role="button">All Contests</a>
+        </div>
+        <div class="p-2 ">
+            <iframe src="https://ghbtns.com/github-btn.html?user=SysSn13&repo=leetcode-rating-predictor&type=star&count=true&size=large" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
+        </div>
+      </div>
+    
     <h2 class="mb-5 mt-3" style="text-align: center;">Ranking of <strong><%= contest.title || contest._id %> </strong>
     </h2>
     <form action="/contest/<%= contest._id %>/ranking/search" method='POST'>
