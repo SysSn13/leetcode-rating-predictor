@@ -7,7 +7,7 @@ const LocalStrategy = require('passport-local').Strategy;
 passport.use(
     new LocalStrategy(function (username, password, cb) {
       if (username === process.env.BULLBOARD_USERNAME && password === process.env.BULLBOARD_PASS) {
-        return cb(null, { user: 'bull-board' });
+        return cb(null, {user : process.env.BULLBOARD_USERNAME});
       }
       return cb(null, false);
     })
@@ -22,7 +22,6 @@ passport.deserializeUser((user, cb) => {
 });
 
 router.get('/', (req, res) => {
-    //console.log('Received login');
     res.render('login', {
         title : 'Login'
     });

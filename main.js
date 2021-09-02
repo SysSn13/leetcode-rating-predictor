@@ -3,6 +3,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 const express = require("express");
 const rateLimit = require("express-rate-limit");
+const path = require('path');
 const expressLayouts = require("express-ejs-layouts");
 const bodyParser = require("body-parser");
 
@@ -36,6 +37,7 @@ app.set("view engine", "ejs");
 app.set("views", __dirname + "/views");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use(expressLayouts);
 
 // background
 if (process.env.BACKGROUND == true) {
@@ -43,7 +45,7 @@ if (process.env.BACKGROUND == true) {
     const {ensureLoggedIn} = require("connect-ensure-login");
     const passport = require('passport');
     const session = require('express-session');
-    app.use(session({secret : 'keyboard cat'}));
+    app.use(session({secret : process.env.SESSION_SECRET}));
     app.use(passport.initialize({}));
     app.use(passport.session({}));
     const authRouter = require("./routes/auth");
@@ -59,15 +61,8 @@ if (process.env.BACKGROUND == true) {
 if (process.env.WEB == true) {
     app.set("layout", "layouts/layout");
     app.set("layout extractScripts", true);
-    app.use(expressLayouts);
-    const unless = require('express-unless');
     const webRouter = require("./web");
-    webRouter.unless = unless;
-    app.use("/", 
-        webRouter.unless({
-            path : ['/login', '/bull-board']
-        }),
-    );
+    app.use("/", webRouter);
     console.info("WEB is up.");
 }
 
@@ -86,6 +81,12 @@ if (!process.env.API_DISABLED) {
     app.use("/api/v1/", apiRoutes);
     console.info("API is up.");
 }
+
+app.use((req, res) => {
+    res.status(404).render('errors/404', {
+        title : '404 Not Found'
+    });
+});
 
 const port = process.env.PORT || 8080;
 
