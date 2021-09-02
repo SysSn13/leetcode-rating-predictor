@@ -274,9 +274,62 @@ const getContestParticipantsData = async (contest) => {
             return [];
         }
         let total = contest.rankings.length;
+
+        let participantsMap = new Map();
+        contest.rankings.forEach((rank, index) => {
+            const id = getUserId(rank._id, rank.data_region);
+            participantsMap.set(id, index);
+        });
         let result = new Array(total),
             failed = [];
         let limit = 500;
+
+        // if there was a contest withing last 24 hours then most probably ratings for last contest are not going to be updated on leetcode
+        // so it's better to use our predicted ratings for those participants who participated in the last contest
+        const lowLimit = contest.startTime - 24 * 60 * 60 * 1000; // within 24 hours
+        const upLimit = contest.startTime;
+        const lastContest = await Contest.findOne(
+            { startTime: { $gte: lowLimit, $lt: upLimit } },
+            { _id: 1 }
+        ).sort({ startTime: -1 });
+
+        // if there was a contest within last 24 hours
+        if (lastContest) {
+            // participants' username list
+            const handles = contest.rankings.map((rank) => {
+                return rank._id;
+            });
+
+            // get rating predictions from last contest
+            const predictedRatings = await Contest.aggregate([
+                {
+                    $project: {
+                        _id: 1,
+                        "rankings._id": 1,
+                        "rankings.current_rating": 1,
+                        "rankings.delta": 1,
+                        "rankings.data_region": 1,
+                    },
+                },
+                { $match: { _id: lastContest._id } },
+                { $unwind: "$rankings" },
+                { $match: { "rankings._id": { $in: handles } } },
+            ]);
+
+            // add predicted ratings'data in result
+            if (predictedRatings) {
+                predictedRatings.map((itm) => {
+                    itm = itm.rankings;
+                    const id = getUserId(itm._id, itm.data_region);
+                    if (participantsMap.has(id)) {
+                        result[participantsMap.get(id)] = {
+                            isFirstContest: false, // always false because user participated in minimum two contests
+                            rating: itm.current_rating + itm.delta,
+                        };
+                    }
+                });
+            }
+        }
 
         const getCurrentRatingHelper = async (index, isFailed = false) => {
             let userData = await getCurrentRating(
@@ -289,15 +342,21 @@ const getContestParticipantsData = async (contest) => {
                 failed.push(index);
             }
         };
+
+        // get progress in percentage
         const getPercentage = (done, total) => {
             if (total <= 0) {
                 return -1;
             }
             return Math.round(((done * 100) / total) * 100) / 100;
         };
+
+        // TODO: fetch ratings in one query for all the users who are already saved in db
+
         for (let i = 0; i < total; i += limit) {
             let promises = [];
             for (let j = 0; j < limit && i + j < total; j++) {
+                if (result[i + j]) continue; // skip if already fetched
                 promises.push(getCurrentRatingHelper(i + j));
             }
             await Promise.all(promises);
@@ -308,6 +367,7 @@ const getContestParticipantsData = async (contest) => {
                 )}%)`
             );
         }
+
         let failedRanks;
         const retry = async (limit) => {
             console.log("Total failed: ", failedRanks.length, "limit: ", limit);
