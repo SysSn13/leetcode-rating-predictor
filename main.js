@@ -45,6 +45,8 @@ app.use(
         path: [/\/bull-board*/],
     })
 );
+app.set("layout", "layouts/layout");
+app.set("layout extractScripts", true);
 
 // background
 if (process.env.BACKGROUND == true) {
@@ -67,8 +69,6 @@ if (process.env.BACKGROUND == true) {
 
 // web
 if (process.env.WEB == true) {
-    app.set("layout", "layouts/layout");
-    app.set("layout extractScripts", true);
     const webRouter = require("./web");
     app.use("/", webRouter);
     console.info("WEB is up.");
