@@ -10,7 +10,7 @@
     "start": "node main.js --max_old_space_size=1024 --trace-warnings",
     "dev": "nodemon --max_old_space_size=1024 --trace-warnings main.js",
     "buildAddon": "npm run build --prefix ./services/predict-addon/",
-    "test":"jest"
+    "test": "jest"
   },
   "keywords": [],
   "author": "Sudesh Chaudhary <sudeshchaudhary1122@gmail.com> (https://github.com/SysSn13)",
@@ -19,13 +19,18 @@
     "@bull-board/express": "^3.3.1",
     "body-parser": "^1.19.0",
     "bull": "^3.27.0",
+    "connect-ensure-login": "^0.1.1",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "express-ejs-layouts": "^2.5.0",
     "express-rate-limit": "^5.3.0",
+    "express-session": "^1.17.2",
+    "express-unless": "^1.0.0",
     "mongoose": "^5.12.10",
     "node-fetch": "^2.6.1",
-    "node-gyp": "^8.1.0"
+    "node-gyp": "^8.1.0",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0"
   },
   "_id": "leetcode-rating-predictor@1.0.0",
   "devDependencies": {
