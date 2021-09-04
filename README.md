@@ -180,6 +180,14 @@ BACKGROUND: Whether to run the background or not. (0 or 1)
 REDIS_URL: Connection string for redis.
 
 THREAD_CNT: Number of threads for prediction.(default: 4)
+
+# bull-board auth
+BULLBOARD_USERNAME: username for bull-board login
+
+BULLBOARD_PASS: password for bull-board login
+
+SESSION_SECRET: secret to hash the session
+
 ```
 
 ## Browser extension

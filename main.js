@@ -3,8 +3,11 @@ if (process.env.NODE_ENV !== "production") {
 }
 const express = require("express");
 const rateLimit = require("express-rate-limit");
-const path = require('path');
+const unless = require("express-unless");
+
 const expressLayouts = require("express-ejs-layouts");
+expressLayouts.unless = unless;
+
 const bodyParser = require("body-parser");
 
 // database
@@ -37,21 +40,26 @@ app.set("view engine", "ejs");
 app.set("views", __dirname + "/views");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-app.use(expressLayouts);
+app.use(
+    expressLayouts.unless({
+        path: [/\/bull-board*/],
+    })
+);
 
 // background
 if (process.env.BACKGROUND == true) {
     const { bullBoardServerAdapter } = require("./background");
-    const {ensureLoggedIn} = require("connect-ensure-login");
-    const passport = require('passport');
-    const session = require('express-session');
-    app.use(session({secret : process.env.SESSION_SECRET}));
+    const { ensureLoggedIn } = require("connect-ensure-login");
+    const passport = require("passport");
+    const session = require("express-session");
+    app.use(session({ secret: process.env.SESSION_SECRET }));
     app.use(passport.initialize({}));
     app.use(passport.session({}));
     const authRouter = require("./routes/auth");
     app.use("/login", authRouter);
-    app.use("/bull-board", 
-        ensureLoggedIn('/login'),
+    app.use(
+        "/bull-board",
+        ensureLoggedIn("/login"),
         bullBoardServerAdapter.getRouter()
     );
     console.info("BACKGROUND is up.");
@@ -82,9 +90,10 @@ if (!process.env.API_DISABLED) {
     console.info("API is up.");
 }
 
+// 404 page
 app.use((req, res) => {
-    res.status(404).render('errors/404', {
-        title : '404 Not Found'
+    res.status(404).render("errors/404", {
+        title: "404 Not Found",
     });
 });
 
