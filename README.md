@@ -27,8 +27,12 @@
   <a href="https://github.com/SysSn13/leetcode-rating-predictor/graphs/contributors" alt="Contributors">
     <img src="https://img.shields.io/github/contributors/SysSn13/leetcode-rating-predictor" />
   </a>
-  <a href="https://chrome.google.com/webstore/detail/leethub/aciombdipochlnkbpcbgdpjffcfdbggi"><img
-      src="https://img.shields.io/chrome-web-store/v/jfhgaegpgiepniiebglgjhhfnjcibphh.svg" alt="chrome-webstore" /></a>
+  <a href="https://chrome.google.com/webstore/detail/lc-predictor/jfhgaegpgiepniiebglgjhhfnjcibphh">
+    <img src="https://img.shields.io/chrome-web-store/v/jfhgaegpgiepniiebglgjhhfnjcibphh.svg" alt="chrome-webstore" />
+  </a>
+  <a href="https://chrome.google.com/webstore/detail/lc-predictor/jfhgaegpgiepniiebglgjhhfnjcibphh">
+    <img src="https://img.shields.io/chrome-web-store/d/jfhgaegpgiepniiebglgjhhfnjcibphh.svg" alt="users">
+  </a>
 
 </div>
 <br />
