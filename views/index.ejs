@@ -16,6 +16,13 @@
           </img>
         </a>
       </div>
+      <div class="toggle-container">
+        <label class="switch">
+          <input type="checkbox" onclick="toggle_darkmode()" id="checkDark">
+          <span class="slider round me-1"></span>
+        </label>
+        <em> Dark Mode!</em>
+      </div>
       <div>
         <iframe class="mt-1"
           src="https://ghbtns.com/github-btn.html?user=SysSn13&repo=leetcode-rating-predictor&type=star&count=true&size=large"
@@ -26,8 +33,9 @@
     <div class="row justify-content-center">
       <div class="col-12">
         <style>
-          th,td {
-              text-align: center !important;
+          th,
+          td {
+            text-align: center !important;
           }
         </style>
         <div class="table-responsive-lg">
@@ -43,24 +51,30 @@
             </thead>
             <tbody>
               <% for( let contest of contests ) { %>
-              <tr>
-                <td>
-                  <% if (contest.rankings_fetched) { %>
-                  <a href="/contest/<%= contest._id %>/ranking/1" style="text-decoration:none"><%= contest._id %></a>
-                  <% } else {%>
-                  <%= contest._id %>
-                  <% } %>
-                </td>
-                <td class="startTime"><%= contest.startTime %></td>
-                <td><%= (contest.endTime - contest.startTime)/60000 %> minutes</td>
-                <td>
-                  <%= contest.rankings_fetched?"Yes":"No" %> 
-                </td>
-                <td>
-                  <%= contest.ratings_predicted?"Yes":"No" %> 
-                </td>
-              </tr>
-              <% } %>
+                <tr>
+                  <td>
+                    <% if (contest.rankings_fetched) { %>
+                      <a href="/contest/<%= contest._id %>/ranking/1" style="text-decoration:none">
+                        <%= contest._id %>
+                      </a>
+                      <% } else {%>
+                        <%= contest._id %>
+                          <% } %>
+                  </td>
+                  <td class="startTime">
+                    <%= contest.startTime %>
+                  </td>
+                  <td>
+                    <%= (contest.endTime - contest.startTime)/60000 %> minutes
+                  </td>
+                  <td>
+                    <%= contest.rankings_fetched?"Yes":"No" %>
+                  </td>
+                  <td>
+                    <%= contest.ratings_predicted?"Yes":"No" %>
+                  </td>
+                </tr>
+                <% } %>
             </tbody>
           </table>
         </div>

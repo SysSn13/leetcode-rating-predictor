@@ -4,8 +4,9 @@ if (preference === null) {
   preference=false;
 }
 var checkBox = document.getElementById("checkDark");
-checkBox.checked = preference;
-
+if(checkBox){
+  checkBox.checked = preference;
+}
 const html = document.getElementsByTagName("html")[0];
 
 if (preference) {
