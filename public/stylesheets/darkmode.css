@@ -8,6 +8,12 @@ html {
   height: 34px;
 }
 
+@media screen and (max-width: 600px) {
+  .switch {
+    width: 80px;
+  }
+}
+  
 .switch input { 
   opacity: 0;
   width: 0;
