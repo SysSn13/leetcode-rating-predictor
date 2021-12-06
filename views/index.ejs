@@ -85,19 +85,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 <script>
-  function localizeDate(page) {
-    const startTimes = document.getElementsByClassName('startTime')
-    for (const startTime of startTimes) {
-      const dateString = startTime.data.trim()
-      startTime.textContent = new Date(dateString).toLocaleString()
+  (function () {
+    function localizeDate(page) {
+      const startTimes = document.getElementsByClassName('startTime')
+      for (const startTime of startTimes) {
+        const dateString = startTime.data.trim()
+        startTime.textContent = new Date(dateString).toLocaleString()
+      }
     }
-  }
-  const dataTable = new simpleDatatables.DataTable("#contest-table", {
-    searchable: true,
-    fixedHeight: true,
-    sortable: false,
-  });
+    const dataTable = new simpleDatatables.DataTable("#contest-table", {
+      searchable: true,
+      fixedHeight: true,
+      sortable: false,
+    });
 
-  localizeDate()
-  dataTable.on('datatable.page', localizeDate)
+    localizeDate()
+    dataTable.on('datatable.page', localizeDate)
+    dataTable.on('datatable.perpage', localizeDate)
+  })()
 </script>

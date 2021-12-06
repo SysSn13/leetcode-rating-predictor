@@ -382,7 +382,7 @@ const getContestParticipantsData = async (contest) => {
                 console.info(
                     `users fetched: ${i + limit} (${getPercentage(
                         Math.min(i + limit, failedRanks.length),
-                        total
+                        failedRanks.length
                     )}%)`
                 );
             }
@@ -433,6 +433,9 @@ const updateUsers = async (job) => {
         const failed = [];
         let totalSuccess = 0;
         const fetchUserHelper = async (user) => {
+            if(!user){
+                return;
+            }
             const [data_region, username] = user._id.split("/");
             const [result, err] = await fetchUserInfo(username, data_region);
             if (err) {
