@@ -30,3 +30,29 @@ exports.getRemainingTime = (time) => {
 exports.isNumeric = (value) => {
     return /^\d+$/.test(value);
 };
+
+exports.generatePagination = (total,current)=>{
+    let result = []
+    let rem = 5;
+    let start = Math.max(current-(2+Math.max(0,2-(total-current))),1);
+    if(start>1){
+        result.push(1);
+    }
+    if(start>2){
+        result.push(-1);
+    }
+    for(let i=start;i<=current;i++){
+        result.push(i);
+    }
+    rem -= current-start+1;
+    for(let i=current+1;i<=current+rem && i<=total;i++){
+        result.push(i);
+    }
+    if(current+rem<total-1){
+        result.push(-1);
+    }
+    if(current+rem<total){
+        result.push(total);
+    }
+    return result;
+};
