@@ -53,7 +53,7 @@ scheduler.process("updateUserDataScheduler", async (job, done) => {
 
     for (let i = 0; i < totalUsers; i += limit) {
         const date = new Date();
-        const hoursWindow = date.getHours() / 4;
+        const hoursWindow = Math.floor(date.getHours() / 4);
         const jobId = `updateUsers|${i}-${
             i + limit
         }|${hoursWindow}|${convertDateYYYYMMDD(date)}`;

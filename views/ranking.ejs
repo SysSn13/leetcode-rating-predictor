@@ -19,73 +19,44 @@
             <button type="submit" class="btn btn-primary mt-3 mb-3">Search</button>
         </div>
     </form>
+
     <nav>
         <% if (!searchResult) { %>
         <ul class="pagination flex-wrap">
             <% if (page>1) { %>
             <li class="page-item">
-                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page - 1 %>" tabindex="-1">
-                    <<</a> </li> <li class="page-item"><a class="page-link"
-                            href="/contest/<%= contest._id %>/ranking/1">1</a></li>
+                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page - 1 %>?<%= params %>" tabindex="-1">
+                    <<</a> </li> 
 
             <% } %>
-            <% if (page===3) { %>
-
-            <li class="page-item">
-                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page - 1 %>"
-                    tabindex="-1"><%= page - 1 %></a>
-            </li>
-
+            <% for( let i = 0; i < pages.length; i++ ) { %>
+                <li class="page-item <%= pages[i]===page?"active":""%> ">
+                    <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= pages[i]%>?<%= params %>" tabindex="-1">
+                        <% if (pages[i]==page) { %>
+                            <%= page %> 
+                            <span class="sr-only">(current)</span></a>
+                        <% } else if (pages[i]==-1) { %>
+                            ..    
+                        <% } else { %>
+                            <%= pages[i] %> 
+                        <% } %>
+                         
+                    </a>
+                </li>
             <% } %>
-            <% if (page>3) { %>
-            <li class="page-item">
-                <a class="page-link" style="pointer-events: none;" tabindex="-1">..</a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page - 2 %>"
-                    tabindex="-1"><%= page - 2 %></a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page - 1 %>"
-                    tabindex="-1"><%= page - 1 %></a>
-            </li>
 
-
-            <% } %>
-            <li class="page-item active">
-                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page%>"><%= page %> <span
-                        class="sr-only">(current)</span></a>
-            </li>
-            <% if (page===totalPages-2) { %>
-            <li class="page-item">
-                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= parseInt(page) + 1 %>"
-                    tabindex="-1"><%= parseInt(page) + 1 %></a>
-            </li>
-            <% } %>
-            <% if (page<totalPages-2) { %>
-            <li class="page-item">
-                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= parseInt(page) + 1 %>"
-                    tabindex="-1"><%= parseInt(page) + 1 %></a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= parseInt(page) + 2 %>"
-                    tabindex="-1"><%= parseInt(page) + 2 %></a>
-            </li>
-            <li class="page-item">
-                <a class="page-link" style="pointer-events: none;" tabindex="-1">..</a>
-            </li>
-            <% } %>
             <% if (page<totalPages) { %>
-
-            <li class="page-item"><a class="page-link"
-                    href="/contest/<%= contest._id %>/ranking/<%= totalPages %> "><%= totalPages %> </a></li>
             <li class="page-item">
-                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page + 1 %>" tabindex="-1">>></a>
+                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page + 1 %>?<%= params %>" tabindex="-1">>></a>
             </li>
             <% } %>
 
+            <li class="page-item ms-auto">
+                <div>Country</div>
+                <select class="form-control" id="selectCountry" name="caBrands" style="width:300px;">
+                </select>
+            </li>
         </ul>
-
         <% } %>
     </nav>
     <div class="table-responsive-lg">
@@ -95,7 +66,6 @@
                     <th>#</th>
                     <th class="pl-3">Username</th>
                     <th class="text-center">Rank</th>
-
                     <th class="text-center">Previous rating</th>
                     <th class="text-center">Expected new rating</th>
                     <th class="text-center">Δ</th>
@@ -135,7 +105,7 @@
                 <% } %>
                 <% } %>
 
-                <% if (searchResult && contest.rankings.length===0) { %>
+                <% if (contest.rankings.length===0) { %>
                 <tr class="">
                     <td class="text-center" colspan="7">
                         No matching records found
@@ -150,76 +120,226 @@
 </div>
 <nav>
     <% if (!searchResult) { %>
-
     <ul class="pagination flex-wrap">
         <% if (page>1) { %>
         <li class="page-item">
-            <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page - 1 %>" tabindex="-1">
-                <<</a> </li> <li class="page-item"><a class="page-link"
-                        href="/contest/<%= contest._id %>/ranking/1">1</a></li>
+            <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page - 1 %>?<%= params %>" tabindex="-1">
+                <<</a> </li> 
 
         <% } %>
-        <% if (page===3) { %>
-
-        <li class="page-item">
-            <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page - 1 %>"
-                tabindex="-1"><%= page - 1 %></a>
-        </li>
-
-
+        <% for( let i = 0; i < pages.length; i++ ) { %>
+            <li class="page-item <%= pages[i]===page?"active":""%> ">
+                <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= pages[i]%>?<%= params %>" tabindex="-1">
+                    <% if (pages[i]==page) { %>
+                        <%= page %> 
+                        <span class="sr-only">(current)</span></a>
+                    <% } else if (pages[i]==-1) { %>
+                        ..    
+                    <% } else { %>
+                        <%= pages[i] %> 
+                    <% } %>
+                     
+                </a>
+            </li>
         <% } %>
-        <% if (page>3) { %>
-        <li class="page-item">
-            <a class="page-link" style="pointer-events: none;" tabindex="-1">..</a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page - 2 %>"
-                tabindex="-1"><%= page - 2 %></a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page - 1 %>"
-                tabindex="-1"><%= page - 1 %></a>
-        </li>
 
-
-        <% } %>
-        <li class="page-item active">
-            <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page%>"><%= page %> <span
-                    class="sr-only">(current)</span></a>
-        </li>
-        <% if (page===totalPages-2) { %>
-        <li class="page-item">
-            <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= parseInt(page) + 1 %>"
-                tabindex="-1"><%= parseInt(page) + 1 %></a>
-        </li>
-        <% } %>
-        <% if (page<totalPages-2) { %>
-        <li class="page-item">
-            <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= parseInt(page) + 1 %>"
-                tabindex="-1"><%= parseInt(page) + 1 %></a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= parseInt(page) + 2 %>"
-                tabindex="-1"><%= parseInt(page) + 2 %></a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" style="pointer-events: none;" tabindex="-1">..</a>
-        </li>
-        <% } %>
         <% if (page<totalPages) { %>
-
-        <li class="page-item"><a class="page-link"
-                href="/contest/<%= contest._id %>/ranking/<%= totalPages %> "><%= totalPages %> </a></li>
         <li class="page-item">
-            <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page + 1 %>" tabindex="-1">>></a>
+            <a class="page-link" href="/contest/<%= contest._id %>/ranking/<%= page + 1 %>?<%= params %>" tabindex="-1">>></a>
         </li>
         <% } %>
     </ul>
-    <% } else { %>
-    <a href="/contest/<%=contest._id%>/ranking/1" class="btn btn-primary btn-md" role="button">All Rankings</a>
     <% } %>
 </nav>
 
 <script>
+    const countries = {
+        "All":"ALL",
+        "Andorra": "AD",
+        "United Arab Emirates": "AE",
+        "Afghanistan": "AF",
+        "Anguilla": "AI",
+        "Albania": "AL",
+        "Armenia": "AM",
+        "Angola": "AO",
+        "Argentina": "AR",
+        "American Samoa": "AS",
+        "Austria": "AT",
+        "Australia": "AU",
+        "Aruba": "AW",
+        "Aland Islands": "AX",
+        "Azerbaijan": "AZ",
+        "Bosnia and Herzegovina": "BA",
+        "Bangladesh": "BD",
+        "Belgium": "BE",
+        "Bulgaria": "BG",
+        "Bahrain": "BH",
+        "Saint Barthelemy": "BL",
+        "Brunei Darussalam": "BN",
+        "Bolivia": "BO",
+        "Brazil": "BR",
+        "Bahamas": "BS",
+        "Belarus": "BY",
+        "Belize": "BZ",
+        "Canada": "CA",
+        "Switzerland": "CH",
+        "Ivory Coast": "CI",
+        "Chile": "CL",
+        "Cameroon": "CM",
+        "China": "CN",
+        "Colombia": "CO",
+        "Costa Rica": "CR",
+        "Cuba": "CU",
+        "Curacao": "CW",
+        "Christmas Island": "CX",
+        "Cyprus": "CY",
+        "Czechia": "CZ",
+        "Germany": "DE",
+        "Denmark": "DK",
+        "Dominica": "DM",
+        "Dominican Republic": "DO",
+        "Algeria": "DZ",
+        "Ecuador": "EC",
+        "Estonia": "EE",
+        "Egypt": "EG",
+        "Eritrea": "ER",
+        "Spain": "ES",
+        "Ethiopia": "ET",
+        "Finland": "FI",
+        "Fiji": "FJ",
+        "Faroe Islands": "FO",
+        "France": "FR",
+        "United Kingdom": "GB",
+        "Georgia": "GE",
+        "French Guiana": "GF",
+        "Ghana": "GH",
+        "Gibraltar": "GI",
+        "Greenland": "GL",
+        "Gambia": "GM",
+        "Guinea": "GN",
+        "Guadeloupe": "GP",
+        "Greece": "GR",
+        "Guatemala": "GT",
+        "Guinea-Bissau": "GW",
+        "Hong Kong": "HK",
+        "Honduras": "HN",
+        "Croatia": "HR",
+        "Hungary": "HU",
+        "Indonesia": "ID",
+        "Ireland": "IE",
+        "Israel": "IL",
+        "India": "IN",
+        "Iraq": "IQ",
+        "Iran": "IR",
+        "Iceland": "IS",
+        "Italy": "IT",
+        "Jamaica": "JM",
+        "Jordan": "JO",
+        "Japan": "JP",
+        "Kenya": "KE",
+        "Kyrgyzstan": "KG",
+        "Cambodia": "KH",
+        "Comoros": "KM",
+        "North Korea": "KP",
+        "South Korea": "KR",
+        "Kazakhstan": "KZ",
+        "Lebanon": "LB",
+        "Saint Lucia": "LC",
+        "Sri Lanka": "LK",
+        "Liberia": "LR",
+        "Lesotho": "LS",
+        "Lithuania": "LT",
+        "Luxembourg": "LU",
+        "Latvia": "LV",
+        "Morocco": "MA",
+        "Moldova": "MD",
+        "Montenegro": "ME",
+        "Madagascar": "MG",
+        "North Macedonia": "MK",
+        "Myanmar": "MM",
+        "Mongolia": "MN",
+        "Macao": "MO",
+        "Mauritania": "MR",
+        "Malta": "MT",
+        "Mauritius": "MU",
+        "Maldives": "MV",
+        "Mexico": "MX",
+        "Malaysia": "MY",
+        "Nigeria": "NG",
+        "Netherlands": "NL",
+        "Norway": "NO",
+        "Nepal": "NP",
+        "New Zealand": "NZ",
+        "Panama": "PA",
+        "Peru": "PE",
+        "Papua New Guinea": "PG",
+        "Philippines": "PH",
+        "Pakistan": "PK",
+        "Poland": "PL",
+        "Puerto Rico": "PR",
+        "Palestine": "PS",
+        "Portugal": "PT",
+        "Paraguay": "PY",
+        "Qatar": "QA",
+        "Romania": "RO",
+        "Serbia": "RS",
+        "Russian": "RU",
+        "Rwanda": "RW",
+        "Saudi Arabia": "SA",
+        "Seychelles": "SC",
+        "Sudan": "SD",
+        "Sweden": "SE",
+        "Singapore": "SG",
+        "Slovenia": "SI",
+        "Slovakia": "SK",
+        "Senegal": "SN",
+        "Somalia": "SO",
+        "El Salvador": "SV",
+        "Syrian": "SY",
+        "Eswatini": "SZ",
+        "Togo": "TG",
+        "Thailand": "TH",
+        "Tajikistan": "TJ",
+        "Turkmenistan": "TM",
+        "Tunisia": "TN",
+        "Turkey": "TR",
+        "Trinidad and Tobago": "TT",
+        "Taiwan": "TW",
+        "Tanzania": "TZ",
+        "Ukraine": "UA",
+        "Uganda": "UG",
+        "United States": "US",
+        "Uruguay": "UY",
+        "Uzbekistan": "UZ",
+        "Holy See": "VA",
+        "Venezuela": "VE",
+        "Vietnam": "VN",
+        "Yemen": "YE",
+        "South Africa": "ZA",
+        "Zambia": "ZM",
+        "Zimbabwe": "ZW"
+    };
+    const selectCountry = document.getElementById('selectCountry');
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    const params = Object.fromEntries(urlSearchParams.entries());
+    let currentCountry = params.country || "ALL";
+    for(const [key,value] of Object.entries(countries)){
+        let option = document.createElement('option');
+        option.value = value;
+        option.text = key;
+        if(value===currentCountry){
+            option.selected = true;
+        }
+        selectCountry.append(option);
+    }
 
+    let path = new URL(window.location.href.split('?')[0]);
+    selectCountry.addEventListener("change", (e)=>{
+        const value = e.target.value;
+        if(value!==currentCountry){
+            path.searchParams.append('country',value);
+            path.searchParams.append('firstPage',1);
+            window.location.href = path.href; 
+        }
+    });
 </script>

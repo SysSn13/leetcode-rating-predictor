@@ -448,7 +448,7 @@ const updateUsers = async (job) => {
         for (let i = 0; i < total; i += rateLimit) {
             let promises = [];
             for (let j = 0; j < rateLimit && i + j < total; j++) {
-                if (
+                if (users[i+j] && 
                     Date.now() - users[i + j].lastUpdated <
                     12 * 60 * 60 * 1000
                 ) {
