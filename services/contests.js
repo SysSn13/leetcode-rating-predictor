@@ -8,7 +8,7 @@ const fetchContestRankings = async function (contestSlug) {
         if (!contest) {
             return [null, Error(`Contest ${contestSlug} not found in the db`)];
         }
-        if (contest.rankings_fetched) {
+        if (!contest.refetch_rankings && contest.rankings_fetched) {
             return [contest, null];
         }
         contest.rankings = [];
@@ -106,6 +106,7 @@ const fetchContestRankings = async function (contestSlug) {
 
         contest.rankings = all_rankings;
         contest.rankings_fetched = true;
+        contest.refetch_rankings = false;
         contest.user_num = all_rankings.length;
         console.time(`Saving rankings in db (${contestSlug})`);
         await contest.save();

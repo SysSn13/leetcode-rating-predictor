@@ -37,6 +37,25 @@ scheduler.process("contestScheduler", async (job, done) => {
                 }
             );
             cnt++;
+            // refetch for the upcoming contests
+            if (remainingTime > 0) {
+                remainingTime += 55 * 60 * 1000; // 1 hour after the contest
+                contestPredictionQueue.add(
+                    "predictRatings",
+                    {
+                        contestSlug: contest._id,
+                        refetch: true,
+                    },
+                    {
+                        jobId: "refetch_" + contest._id,
+                        attempts: 5,
+                        delay: remainingTime,
+                        backoff: 10000,
+                        priority: 1,
+                    }
+                );
+                cnt++;
+            }
         }
     });
 
