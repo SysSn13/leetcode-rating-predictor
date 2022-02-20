@@ -47,6 +47,7 @@
                 <th scope="col">Duration</th>
                 <th scope="col">Rankings Fetched</th>
                 <th scope="col">Predicted</th>
+                <th scope="col">Last Updated</th>
               </tr>
             </thead>
             <tbody>
@@ -73,6 +74,9 @@
                   <td>
                     <%= contest.ratings_predicted?"Yes":"No" %>
                   </td>
+                  <td class="lastUpdatedTime">
+                    <%= contest.lastUpdated %>
+                  </td>
                 </tr>
                 <% } %>
             </tbody>
@@ -88,9 +92,14 @@
   (function () {
     function localizeDate(page) {
       const startTimes = document.getElementsByClassName('startTime')
+      const lastUpdatedTimes = document.getElementsByClassName('lastUpdatedTime')
       for (const startTime of startTimes) {
         const dateString = startTime.data.trim()
         startTime.textContent = new Date(dateString).toLocaleString()
+      }
+      for(const lastUpdatedTime of lastUpdatedTimes){
+        const dateString = lastUpdatedTime.data.trim()
+        lastUpdatedTime.textContent = new Date(dateString).toLocaleString()
       }
     }
     const dataTable = new simpleDatatables.DataTable("#contest-table", {

@@ -40,6 +40,10 @@ const ContestRankingsSchema = new Schema({
         default: false,
     },
     rankings: [rankingSchema],
+    refetch_rankings:{
+        type:Boolean,
+        default:false,
+    },
     lastUpdated: {
         type: Date,
     },
