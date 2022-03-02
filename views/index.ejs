@@ -1,11 +1,12 @@
 <link rel="stylesheet" href="/stylesheets/tablestyle.css">
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <section class="content mt-5">
   <div class="mb-4 text-center">
-    <h2 style="font-weight: bold;">Leetcode Rating Predictor</h2>
-    <div class="text-muted">
+    <h1 style="font-weight: bold;">Leetcode Rating Predictor</h1>
+    <h5 class="text-muted">
       <i>Get your rating changes right after the completion of Leetcode contests</i>
-    </div>
+    </h5>
   </div>
   <div class="container">
     <div class="d-flex justify-content-around">
@@ -87,6 +88,82 @@
   </div>
 </section>
 
+<br>
+
+<section>
+
+  <div class="accordion m-auto">
+    <h3 class="accordion__heading text-center">Frequently Asked Questions</h2>
+  
+    <div class="accordion__item">
+      <button class="accordion__btn">
+  
+        <span class="accordion__caption"><i class="far fa-lightbulb"></i>What is Leetcode Rating Predictor?</span>
+        <span class="accordion__icon"><i class="fa fa-plus"></i></span>
+      </button>
+  
+      <div class="accordion__content">
+        <p>It takes about 4-5 days for leetcode to update the contest ratings of participants. So you have to wait for a long time to know your rating changes. This application predicts accurate leetcode rating changes for all the contestants within a few minutes of completion of the contest.
+
+        </p>
+      </div>
+    </div>
+    
+
+    
+    <div class="accordion__item">
+      <button class="accordion__btn">
+        
+        <span class="accordion__caption"><i class="far fa-lightbulb"></i>Is it 100 percent accurate?</span>
+        <span class="accordion__icon"><i class="fa fa-plus"></i></span>
+      </button>
+  
+      <div class="accordion__content">
+        <p>
+          It implements leetcode's latest rating prediction algorithm. Rating predictions are very close to the original rating but the accuracy may not be 100% due to changes in contest rankings after the completion of contest (leetcode rejudges some submissons).
+        </p>
+      </div>
+    </div>
+  
+    <div class="accordion__item">
+      <button class="accordion__btn">
+  
+        <span class="accordion__caption"><i class="far fa-lightbulb"></i>How much time does it take to predict ratings?</span>
+        <span class="accordion__icon"><i class="fa fa-plus"></i></span>
+      </button>
+  
+      <div class="accordion__content">
+        <p>It takes around 15 minutes after the completion of contest to make predictions. Sometimes leetcode takes more time to update the final rankings. So it also rejudges the ratings after 1 hour of the contest. </p>
+      </div>
+    </div>
+    <div class="accordion__item">
+      <button class="accordion__btn">
+  
+        <span class="accordion__caption"><i class="far fa-lightbulb"></i>How to use the chrome-extension?</span>
+        <span class="accordion__icon"><i class="fa fa-plus"></i></span>
+      </button>
+  
+      <div class="accordion__content">
+        <p>You need to install <a href="https://chrome.google.com/webstore/detail/lc-predictor/jfhgaegpgiepniiebglgjhhfnjcibphh"
+          target="_blank">LC Predictor extension</a> from Chrome Web Store. After installing the extension you will see the rating changes on the Leetcode contest ranking pages.
+        </p>
+      </div>
+    </div>
+  
+    <div class="accordion__item">
+      <button class="accordion__btn">
+        <span class="accordion__caption"><i class="far fa-lightbulb"></i>How can I contribute?</span>
+        <span class="accordion__icon"><i class="fa fa-plus"></i></span>
+      </button>
+  
+      <div class="accordion__content">
+        <p>You can contribute by creating issues, feature/ pull requests in the <a href="https://github.com/SysSn13/leetcode-rating-predictor" target="_blank"> GitHub Repo</a>. Any meaningful contributions you make are greatly appreciated.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</section>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 <script>
   (function () {
@@ -111,5 +188,21 @@
     localizeDate()
     dataTable.on('datatable.page', localizeDate)
     dataTable.on('datatable.perpage', localizeDate)
-  })()
+  })();
+
+
+(function(){
+  const accItems = document.querySelectorAll(".accordion__item");
+
+  accItems.forEach((acc) => acc.addEventListener("click", toggleAcc));
+
+  function toggleAcc() {
+    accItems.forEach((item) => item != this ? item.classList.remove("accordion__item--active") : null
+    );
+
+    if (this.classList != "accordion__item--active") {
+      this.classList.toggle("accordion__item--active");
+    }
+  }
+})()
 </script>
