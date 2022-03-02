@@ -2,7 +2,7 @@ const { fetchContestRankings } = require("./contests");
 const { getContestParticipantsData } = require("./users");
 const Contest = require("../models/contest");
 const predictAddon = require("./predict-addon");
-const THREAD_CNT = process.env.THREAD_CNT || 4;
+const THREAD_CNT = Number(process.env.THREAD_CNT) || 4;
 
 const predict = async (job) => {
     try {

@@ -11,13 +11,23 @@ const predictQueue = new Queue("Predictions", opts);
 predictQueue.process("predictRatings", async (job, done) => {
     try {
         console.log(`Processing ${job.name} job: ${job.id}`);
+
         const contest = await Contest.findById(job.data.contestSlug, {
             ratings_predicted: 1,
         });
-        if (contest && contest.ratings_predicted) {
+
+        const refetch = job.data.refetch && job.attemptsMade === 0; // applicable for the first attempt only
+
+        if (!refetch && contest && contest.ratings_predicted) {
             done(null, { message: "skipped (already predicted)" });
             return;
         }
+
+        if (refetch) {
+            contest.refetch_rankings = true;
+            await contest.save();
+        }
+
         const err = await predict(job);
         if (err) {
             console.error(err);
