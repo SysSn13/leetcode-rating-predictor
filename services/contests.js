@@ -56,6 +56,9 @@ const fetchContestRankings = async function (contestSlug) {
                             data_region,
                             rank,
                         } = ranks;
+                        if (data_region === "CN") {
+                            country_code = "CN";
+                        }
                         let ranking = {
                             username,
                             user_slug,
