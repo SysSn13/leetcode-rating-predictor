@@ -2,7 +2,7 @@ const express = require("express");
 const Contest = require("../models/contest");
 const router = express.Router();
 const rankingsController = require("../controllers/rankingsController");
-
+const sitemapController = require("../controllers/sitemapController");
 
 router.get("/", async (req, res) => {
     try {
@@ -22,5 +22,6 @@ router.get("/", async (req, res) => {
 
 router.get("/contest/:contestSlug/ranking/:page", rankingsController.get);
 router.post("/contest/:contestSlug/ranking/search", rankingsController.search);
+router.get("/sitemap.xml", sitemapController.get);
 
 module.exports = router;
