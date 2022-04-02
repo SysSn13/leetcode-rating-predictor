@@ -27,10 +27,11 @@
     "express-session": "^1.17.2",
     "express-unless": "^1.0.0",
     "mongoose": "^5.12.10",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "node-gyp": "^8.1.0",
     "passport": "^0.4.1",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "sitemap": "^7.1.1"
   },
   "_id": "leetcode-rating-predictor@1.0.0",
   "devDependencies": {
