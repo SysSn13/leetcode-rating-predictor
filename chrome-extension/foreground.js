@@ -1,5 +1,5 @@
-if (!window.CFPredictorInjected) {
-    window.CFPredictorInjected = true;
+if (!window.LCPredictorInjected) {
+    window.LCPredictorInjected = true;
     let predictionsTimer;
     let isListenerActive = false;
     const setEventListener = () => {
@@ -86,7 +86,7 @@ if (!window.CFPredictorInjected) {
                         handle = tds[1].querySelector("span").innerText.trim();
                         url = ""; // TODO: get data_region in this case
                     }
-                    const data_region = /^https:\/\/leetcode-cn.com/.test(url)
+                    const data_region = /^https:\/\/leetcode.cn/.test(url)
                         ? "CN"
                         : "US";
                     handlesMap.set(
@@ -156,6 +156,10 @@ if (!window.CFPredictorInjected) {
                                         row.appendChild(td);
                                     }
                                     rowsUpdated.set(rowIndex, true);
+                                } else {
+                                    console.log(
+                                        `handle not found in the results: ${id}`
+                                    );
                                 }
                             } catch (err) {
                                 console.warn(err);
