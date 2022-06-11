@@ -159,6 +159,7 @@ td {
     font-weight: 300;
     max-height: 0;
     opacity: 0;
+    overflow: hidden;
     color: var(--color-text-muted);
     transform: translateX(16px);
     transition: max-height 0.5s ease, opacity 0.5s, transform 0.5s;
