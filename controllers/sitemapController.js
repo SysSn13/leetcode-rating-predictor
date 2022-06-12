@@ -49,6 +49,8 @@ const getURLsCollection = async () => {
 let sitemapXML;
 exports.get = async function (req, res) {
     res.header("Content-Encoding", "gzip");
+    res.set("Content-Type", "application/xml");
+
     // if we have a cached entry send it
     if (sitemapXML) {
         res.send(sitemapXML);

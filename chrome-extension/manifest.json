@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LC Predictor",
-  "version": "1.0.0",
+  "version": "1.0.1",
 
   "short_name": "LC Predictor",
   "background": {
