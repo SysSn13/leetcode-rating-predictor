@@ -55,7 +55,7 @@ You can install the extension from [Chrome Web Store](https://chrome.google.com/
 
 ## Website
 
-You can also visit [lcpredictor.onrender.com/](https://lcpredictor.onrender.com/) to get your rating changes.
+You can also visit [lcpredictor.onrender.com](https://lcpredictor.onrender.com/) to get your rating changes.
 
 <div align="center">
   <img src="./data/screenshots/web_demo.gif" alt="website preview">
