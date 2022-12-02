@@ -24,8 +24,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 const API_URLS = [
-    "https://leetcode-rating-predictor.herokuapp.com/api/v1/predictions",
-    "https://leetcode-predictor.herokuapp.com/api/v1/predictions",
+    "https://lcpredictor.onrender.com/",
 ];
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
