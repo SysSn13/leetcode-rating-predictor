@@ -2,7 +2,7 @@ const Contest = require("../models/contest");
 const { SitemapStream, streamToPromise } = require("sitemap");
 const { createGzip } = require("zlib");
 
-const HOST = process.env.HOST || "https://lcpredictor.herokuapp.com/";
+const HOST = process.env.HOST || "https://lcpredictor.onrender.com/";
 
 const getURLsCollection = async () => {
     const collection = [];

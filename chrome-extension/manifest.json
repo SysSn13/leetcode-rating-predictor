@@ -33,7 +33,6 @@
   ],
   "host_permissions": [
     "https://leetcode.com/*",
-    "https://leetcode-predictor.herokuapp.com/*",
-    "https://leetcode-rating-predictor.herokuapp.com/*"
+    "https://lcpredictor.onrender.com/*"
   ]
 }
