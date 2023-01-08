@@ -71,7 +71,7 @@ This project is written in Node + MongoDB + Redis tech stack. We can divide it i
 | 2.  |  Website   |  Js, Ejs  |
 | 3.  |    API     |    Js     |
 
-## Backgound
+## Background
 
 It is the most important part of the project. It's job is to fetch the data from leetcode and predict the contest ratings periodically.
 
