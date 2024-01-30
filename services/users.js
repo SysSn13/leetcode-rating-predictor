@@ -3,7 +3,7 @@ const Contest = require("../models/contest");
 const fetch = require("node-fetch");
 
 const BASE_URL = "https://leetcode.com";
-const BASE_CN_URL = "https://leetcode-cn.com";
+const BASE_CN_URL = "https://leetcode.cn";
 const { getUserId } = require("../helpers");
 
 async function fetchUserDataUSRegion(username, retries = 4, updateDB = true) {
@@ -472,5 +472,9 @@ const updateUsers = async (job) => {
     }
 };
 
-exports.getContestParticipantsData = getContestParticipantsData;
-exports.updateUsers = updateUsers;
+module.exports = {
+    getContestParticipantsData,
+    updateUsers,
+    BASE_CN_URL,
+    BASE_URL
+}
