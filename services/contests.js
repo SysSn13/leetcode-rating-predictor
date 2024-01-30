@@ -1,6 +1,104 @@
 const fetch = require("node-fetch");
 const Contest = require("../models/contest");
 const { IsLatestContest } = require("../helpers");
+const { BASE_CN_URL, BASE_URL } = require("./users");
+
+const getContestParticipantsRankings = async (contestSlug, dataRegion) => {
+    console.log(`Fetching participant's rankings for ${dataRegion} region...`);
+    const baseUrl = dataRegion === "CN" ? BASE_CN_URL : BASE_URL;
+    let resp = await fetch(
+        `${baseUrl}/contest/api/ranking/${contestSlug}/?region=global`
+    );
+    resp = await resp.json();
+    let pages = Math.ceil(resp.user_num / 25);
+    let all_rankings = [];
+    let failed = [];
+    let lastPage = Math.MAX_SAFE_INTEGER;
+    const fetchPageRankings = async (
+        pageNo,
+        retries,
+        throwError = false
+    ) => {
+        if (pageNo > lastPage) {
+            return;
+        }
+        try {
+            let res = await fetch(
+                `${baseUrl}/contest/api/ranking/${contestSlug}/?pagination=${pageNo}&region=${dataRegion == "CN" ? "local" : "global"}`
+            );
+            if (res.status !== 200) {
+                throw new Error(res.statusText);
+            }
+            res = await res.json();
+            rankings = res.total_rank
+                .filter(
+                    (ranks) =>
+                        !(
+                            ranks.score == 0 &&
+                            ranks.finish_time * 1000 ==
+                            contest.startTime.getTime()
+                        )
+                );
+            if (rankings.length < 25) {
+                lastPage = Math.min(lastPage, pageNo);
+            }
+            all_rankings = all_rankings.concat(rankings);
+            console.log(
+                `Fetched rankings (${contestSlug} page: ${pageNo})`,
+            );
+        } catch (err) {
+            if (retries > 0) {
+                await fetchPageRankings(pageNo, retries - 1);
+            } else if (throwError) {
+                throw err;
+            } else {
+                failed.push(pageNo);
+            }
+        }
+    };
+    const limit = 5;
+    const maxRetries = 5;
+    for (let i = 0; i < pages; i += limit) {
+        let promises = [];
+        for (let j = 0; j < limit && i + j < pages; j++) {
+            promises.push(fetchPageRankings(i + j + 1, maxRetries));
+        }
+        await Promise.all(promises);
+    }
+
+    for (let i = 0; i < failed.length; i++) {
+        await fetchPageRankings(failed[i], maxRetries, true);
+    }
+    console.log(`(${contestSlug}) Rankings fetched from ${baseUrl}`);
+    return all_rankings;
+};
+
+const mergeRankings = (us_rankings, cn_rankings) => {
+    us_rankings.sort((a, b) => (a.rank > b.rank ? 1 : -1));
+    cn_rankings.sort((a, b) => (a.rank > b.rank ? 1 : -1));
+    let totalUsRankings = us_rankings.length;
+    let totalCnRankings = cn_rankings.length;
+    let currRank = 0;
+    let i = 0, j = 0;
+    all_rankings = [];
+    while (i < totalUsRankings || j < totalCnRankings) {
+        let currRanking;
+        if (i == totalUsRankings) {
+            currRanking = cn_rankings[j++];
+        } else if (j == totalCnRankings) {
+            currRanking = us_rankings[i++];
+        } else {
+            if (us_rankings[i].score > cn_rankings[j].score || (us_rankings[i].score === cn_rankings[i].score && us_rankings[i].finish_time <= cn_rankings[j].finish_time)) {
+                currRanking = us_rankings[i++];
+            } else {
+                currRanking = cn_rankings[j++];
+            }
+        }
+        currRanking.rank = currRank++;
+        all_rankings.push(currRanking);
+    }
+    return all_rankings;
+}
 
 const fetchContestRankings = async function (contestSlug) {
     try {
@@ -13,99 +111,33 @@ const fetchContestRankings = async function (contestSlug) {
         }
         contest.rankings = [];
         console.log(`fetching ${contestSlug} ...`);
-        let resp = await fetch(
-            `https://leetcode.com/contest/api/ranking/${contestSlug}/?region=global`
-        );
-        resp = await resp.json();
-        let pages = Math.ceil(resp.user_num / 25);
-        let all_rankings = [];
-        let failed = [];
-        let lastPage = Math.MAX_SAFE_INTEGER;
-        const fetchPageRankings = async (
-            pageNo,
-            retries,
-            throwError = false
-        ) => {
-            if (pageNo > lastPage) {
-                return;
-            }
-            // console.log(`Fetching rankings (${contestSlug}): page: ${pageNo}`);
-            try {
-                let res = await fetch(
-                    `https://leetcode.com/contest/api/ranking/${contestSlug}/?pagination=${pageNo}&region=global`
-                );
-                if (res.status !== 200) {
-                    throw new Error(res.statusText);
-                }
-                res = await res.json();
-                rankings = res.total_rank
-                    .filter(
-                        (ranks) =>
-                            !(
-                                ranks.score == 0 &&
-                                ranks.finish_time * 1000 ==
-                                    contest.startTime.getTime()
-                            )
-                    )
-                    .map((ranks) => {
-                        let {
-                            username,
-                            user_slug,
-                            country_code,
-                            country_name,
-                            data_region,
-                            rank,
-                        } = ranks;
-                        if (data_region === "CN") {
-                            country_code = "CN";
-                        }
-                        let ranking = {
-                            username,
-                            user_slug,
-                            country_code,
-                            country_name,
-                            data_region,
-                            rank,
-                        };
-                        ranking["_id"] = username;
-                        return ranking;
-                    });
-                if (rankings.length < 25) {
-                    lastPage = Math.min(lastPage, pageNo);
-                }
-                all_rankings = all_rankings.concat(rankings);
-                console.log(
-                    `Fetched rankings (${contestSlug} page: ${pageNo})`
-                );
-            } catch (err) {
-                // console.log(
-                //     `Failed to fetch rankings (${contestSlug} page: ${pageNo})`,
-                //     err.message
-                // );
-                if (retries > 0) {
-                    await fetchPageRankings(pageNo, retries - 1);
-                } else if (throwError) {
-                    throw err;
-                } else {
-                    failed.push(pageNo);
-                }
-            }
-        };
-        const limit = 5;
-        const maxRetries = 5;
-        for (let i = 0; i < pages; i += limit) {
-            let promises = [];
-            for (let j = 0; j < limit && i + j < pages; j++) {
-                promises.push(fetchPageRankings(i + j + 1, maxRetries));
-            }
-            await Promise.all(promises);
-        }
 
-        for (let i = 0; i < failed.length; i++) {
-            await fetchPageRankings(failed[i], maxRetries, true);
-        }
-        console.log(`(${contestSlug}) Rankings fetched from leetcode!`);
-        all_rankings.sort((a, b) => (a.rank > b.rank ? 1 : -1));
+        us_rankings = await getContestParticipantsRankings(contestSlug, "US");
+        cn_rankings = await getContestParticipantsRankings(contestSlug, "CN");
+
+        // Merged rankings sorted by rank
+        all_rankings = mergeRankings(us_rankings, cn_rankings).map((ranking) => {
+            let {
+                username,
+                user_slug,
+                country_code,
+                country_name,
+                data_region,
+                rank,
+            } = ranking;
+            if (data_region === "CN") {
+                country_code = "CN";
+            }
+            return {
+                _id: username,
+                username,
+                user_slug,
+                country_code,
+                country_name,
+                data_region,
+                rank,
+            };;
+        });
 
         contest.rankings = all_rankings;
         contest.rankings_fetched = true;
