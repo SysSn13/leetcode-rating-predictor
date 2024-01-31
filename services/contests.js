@@ -3,7 +3,8 @@ const Contest = require("../models/contest");
 const { IsLatestContest } = require("../helpers");
 const { BASE_CN_URL, BASE_URL } = require("./users");
 
-const getContestParticipantsRankings = async (contestSlug, dataRegion) => {
+const getContestParticipantsRankings = async (contest, dataRegion) => {
+    const contestSlug = contest._id;
     console.log(`Fetching participant's rankings for ${dataRegion} region...`);
     const baseUrl = dataRegion === "CN" ? BASE_CN_URL : BASE_URL;
     let resp = await fetch(
@@ -13,7 +14,7 @@ const getContestParticipantsRankings = async (contestSlug, dataRegion) => {
     let pages = Math.ceil(resp.user_num / 25);
     let all_rankings = [];
     let failed = [];
-    let lastPage = Math.MAX_SAFE_INTEGER;
+    let lastPage = Number.MAX_SAFE_INTEGER;
     const fetchPageRankings = async (
         pageNo,
         retries,
@@ -47,6 +48,7 @@ const getContestParticipantsRankings = async (contestSlug, dataRegion) => {
                 `Fetched rankings (${contestSlug} page: ${pageNo})`,
             );
         } catch (err) {
+            console.error(err);
             if (retries > 0) {
                 await fetchPageRankings(pageNo, retries - 1);
             } else if (throwError) {
@@ -58,14 +60,13 @@ const getContestParticipantsRankings = async (contestSlug, dataRegion) => {
     };
     const limit = 5;
     const maxRetries = 5;
-    for (let i = 0; i < pages; i += limit) {
+    for (let i = 0; i < pages && i < lastPage; i += limit) {
         let promises = [];
-        for (let j = 0; j < limit && i + j < pages; j++) {
+        for (let j = 0; j < limit && i + j < pages && i + j < lastPage; j++) {
             promises.push(fetchPageRankings(i + j + 1, maxRetries));
         }
         await Promise.all(promises);
     }
-
     for (let i = 0; i < failed.length; i++) {
         await fetchPageRankings(failed[i], maxRetries, true);
     }
@@ -88,7 +89,7 @@ const mergeRankings = (us_rankings, cn_rankings) => {
         } else if (j == totalCnRankings) {
             currRanking = us_rankings[i++];
         } else {
-            if (us_rankings[i].score > cn_rankings[j].score || (us_rankings[i].score === cn_rankings[i].score && us_rankings[i].finish_time <= cn_rankings[j].finish_time)) {
+            if (us_rankings[i].score > cn_rankings[j].score || (us_rankings[i].score === cn_rankings[j].score && us_rankings[i].finish_time <= cn_rankings[j].finish_time)) {
                 currRanking = us_rankings[i++];
             } else {
                 currRanking = cn_rankings[j++];
@@ -112,8 +113,8 @@ const fetchContestRankings = async function (contestSlug) {
         contest.rankings = [];
         console.log(`fetching ${contestSlug} ...`);
 
-        us_rankings = await getContestParticipantsRankings(contestSlug, "US");
-        cn_rankings = await getContestParticipantsRankings(contestSlug, "CN");
+        us_rankings = await getContestParticipantsRankings(contest, "US");
+        cn_rankings = await getContestParticipantsRankings(contest, "CN");
 
         // Merged rankings sorted by rank
         all_rankings = mergeRankings(us_rankings, cn_rankings).map((ranking) => {
