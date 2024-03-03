@@ -1,3 +1,4 @@
+const Bottleneck = require("bottleneck");
 const { User } = require("../models/user");
 const Contest = require("../models/contest");
 const fetch = require("node-fetch");
@@ -6,13 +7,18 @@ const BASE_URL = "https://leetcode.com";
 const BASE_CN_URL = "https://leetcode.cn";
 const { getUserId } = require("../helpers");
 
+// Create a rate limiter for user API calls
+const limiter = new Bottleneck({ maxConcurrent: 10, minTime: 100 });
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function fetchUserDataUSRegion(username, retries = 4, updateDB = true) {
     try {
         let attendedContestsCount,
             rating,
             globalRanking,
             user_id = getUserId(username, "US");
-        var resp = await fetch(BASE_URL + "/graphql", {
+        var resp = await limiter.schedule(() => fetch(BASE_URL + "/graphql", {
             headers: {
                 accept: "*/*",
                 "accept-language":
@@ -40,9 +46,13 @@ async function fetchUserDataUSRegion(username, retries = 4, updateDB = true) {
             "}`,
             method: "POST",
             mode: "cors",
-        });
+        }));
 
         if (resp.status != 200) {
+            if (resp.status === 429) {
+                // If the response code is 429 (Too Many Requests), wait for some time
+                await wait(500);
+            }
             if (retries > 0) {
                 const res = await fetchUserDataUSRegion(
                     username,
@@ -112,7 +122,7 @@ async function fetchUserDataCNRegion(username, retries = 4, updateDB = true) {
             rating,
             globalRanking,
             user_id = getUserId(username, "CN");
-        let resp = await fetch(BASE_CN_URL + "/graphql/", {
+        let resp = await limiter.schedule(() => fetch(BASE_CN_URL + "/graphql/", {
             headers: {
                 accept: "*/*",
                 "accept-language": "en",
@@ -151,9 +161,13 @@ async function fetchUserDataCNRegion(username, retries = 4, updateDB = true) {
           "}`,
             method: "POST",
             mode: "cors",
-        });
+        }));
 
         if (resp.status != 200) {
+            if (resp.status == 429) {
+                // If the response code is 429 (Too Many Requests), wait for some time
+                await wait(500);
+            }
             if (retries > 0) {
                 const res = await fetchUserDataCNRegion(
                     username,
@@ -282,6 +296,7 @@ const getContestParticipantsData = async (contest) => {
         });
         let result = new Array(total),
             failed = [];
+        let fetchedCount = 0;
         let limit = 500;
 
         // if there was a contest withing last 24 hours then most probably ratings for last contest are not going to be updated on leetcode
@@ -340,8 +355,20 @@ const getContestParticipantsData = async (contest) => {
             result[index] = userData;
             if (userData.error) {
                 failed.push(index);
+            } else {
+                fetchedCount++;
             }
         };
+
+
+        // TODO: fetch ratings in one query for all the users who are already saved in db
+        let promises = [];
+        for (let i = 0; i < total; i++) {
+            if (result[i]) continue; // skip if already fetched
+            promises.push(getCurrentRatingHelper(i));
+        }
+
+        const logProgressInterval = 500; // Log progress every 500 ms
 
         // get progress in percentage
         const getPercentage = (done, total) => {
@@ -350,24 +377,15 @@ const getContestParticipantsData = async (contest) => {
             }
             return Math.round(((done * 100) / total) * 100) / 100;
         };
+        const checkProgress = () => {
+            console.log(`${contest._id}::getContestParticipantsData - `, getPercentage(fetchedCount, total));
+        };
+        const progressInterval = setInterval(checkProgress, logProgressInterval);
 
-        // TODO: fetch ratings in one query for all the users who are already saved in db
 
-        for (let i = 0; i < total; i += limit) {
-            let promises = [];
-            for (let j = 0; j < limit && i + j < total; j++) {
-                if (result[i + j]) continue; // skip if already fetched
-                promises.push(getCurrentRatingHelper(i + j));
-            }
-            await Promise.all(promises);
-            console.info(
-                `users fetched: ${i + limit} (${getPercentage(
-                    Math.min(i + limit, total),
-                    total
-                )}%)`
-            );
-        }
-
+        await Promise.all(promises);
+        clearInterval(progressInterval);
+        console.log(`${contest._id}::getContestParticipantsData - total failiures: `, failed.length);
         let failedRanks;
         const retry = async (limit) => {
             console.log("Total failed: ", failedRanks.length, "limit: ", limit);
@@ -400,6 +418,9 @@ const getContestParticipantsData = async (contest) => {
             failedRanks = failed;
             failed = [];
             await retry(limit);
+            if (failed.length > 0) {
+                console.log(`${contest._id}::getContestParticipantsData - total failiures: `, failed.length);
+            }
         }
         if (failed.length) {
             console.log("Unable to fetch these ranks: ", failed);
@@ -433,7 +454,7 @@ const updateUsers = async (job) => {
         const failed = [];
         let totalSuccess = 0;
         const fetchUserHelper = async (user) => {
-            if(!user){
+            if (!user) {
                 return;
             }
             const [data_region, username] = user._id.split("/");
@@ -448,7 +469,7 @@ const updateUsers = async (job) => {
         for (let i = 0; i < total; i += rateLimit) {
             let promises = [];
             for (let j = 0; j < rateLimit && i + j < total; j++) {
-                if (users[i+j] && 
+                if (users[i + j] &&
                     Date.now() - users[i + j].lastUpdated <
                     12 * 60 * 60 * 1000
                 ) {
