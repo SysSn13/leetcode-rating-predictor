@@ -171,11 +171,11 @@
       const startTimes = document.getElementsByClassName('startTime')
       const lastUpdatedTimes = document.getElementsByClassName('lastUpdatedTime')
       for (const startTime of startTimes) {
-        const dateString = startTime.data.trim()
+        const dateString = startTime.textContent.trim()
         startTime.textContent = new Date(dateString).toLocaleString()
       }
       for(const lastUpdatedTime of lastUpdatedTimes){
-        const dateString = lastUpdatedTime.data.trim()
+        const dateString = lastUpdatedTime.textContent.trim()
         lastUpdatedTime.textContent = new Date(dateString).toLocaleString()
       }
     }

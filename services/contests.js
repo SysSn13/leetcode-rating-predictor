@@ -67,7 +67,7 @@ const getContestParticipantsRankings = async (contest, dataRegion) => {
             }
         }
     };
-
+  
     const maxRetries = 3;
     let promises = [];
     for (let i = 0; i < pages && i < lastPage; i++) {
