@@ -1,9 +1,14 @@
+const Bottleneck = require("bottleneck");
 const fetch = require("node-fetch");
 const Contest = require("../models/contest");
 const { IsLatestContest } = require("../helpers");
 const { BASE_CN_URL, BASE_URL } = require("./users");
 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const getContestParticipantsRankings = async (contest, dataRegion) => {
+    // Create a rate limiter for API calls
+    const limiter = new Bottleneck({ maxConcurrent: 10, minTime: 100 });
     const contestSlug = contest._id;
     console.log(`Fetching participant's rankings for ${dataRegion} region...`);
     const baseUrl = dataRegion === "CN" ? BASE_CN_URL : BASE_URL;
@@ -24,10 +29,14 @@ const getContestParticipantsRankings = async (contest, dataRegion) => {
             return;
         }
         try {
-            let res = await fetch(
+            let res = await limiter.schedule(() => fetch(
                 `${baseUrl}/contest/api/ranking/${contestSlug}/?pagination=${pageNo}&region=${dataRegion == "CN" ? "local" : "global"}`
-            );
+            ));
             if (res.status !== 200) {
+                if (res.status === 429) {
+                    // wait for some time in case of too many requests error
+                    await wait(500);
+                }
                 throw new Error(res.statusText);
             }
             res = await res.json();
@@ -58,18 +67,42 @@ const getContestParticipantsRankings = async (contest, dataRegion) => {
             }
         }
     };
-    const limit = 5;
-    const maxRetries = 5;
-    for (let i = 0; i < pages && i < lastPage; i += limit) {
-        let promises = [];
-        for (let j = 0; j < limit && i + j < pages && i + j < lastPage; j++) {
-            promises.push(fetchPageRankings(i + j + 1, maxRetries));
-        }
-        await Promise.all(promises);
+  
+    const maxRetries = 3;
+    let promises = [];
+    for (let i = 0; i < pages && i < lastPage; i++) {
+        promises.push(fetchPageRankings(i + 1, maxRetries));
     }
-    for (let i = 0; i < failed.length; i++) {
-        await fetchPageRankings(failed[i], maxRetries, true);
+    await Promise.all(promises);
+    let failedCopy = failed;
+    failed = [];
+    promises = [];
+
+    // Set the max concurrent requests to 5
+    limiter.updateSettings({ maxConcurrent: 5 });
+
+    for (let i = 0; i < failedCopy.length; i++) {
+        promises.push(await fetchPageRankings(failedCopy[i], maxRetries));
     }
+
+    await Promise.all(promises);
+    failedCopy = failed;
+    failed = [];
+    promises = [];
+    // Set the max concurrent requests to 2
+    limiter.updateSettings({ maxConcurrent: 2 });
+
+    for (let i = 0; i < failedCopy.length; i++) {
+        promises.push(await fetchPageRankings(failedCopy[i], maxRetries));
+    }
+    await Promise.all(promises);
+    failedCopy = failed;
+    failed = [];
+    
+    for (let i = 0; i < failedCopy.length; i++) {
+        await fetchPageRankings(failedCopy[i], maxRetries, true);
+    }
+
     console.log(`(${contestSlug}) Rankings fetched from ${baseUrl}`);
     return all_rankings;
 };
